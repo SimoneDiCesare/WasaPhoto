@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: WasaPhoto API
+  description: |-
+    This API defines how an application can interface with the WasaPhoto social,
+    providing functions to obtain and change informations about users and posts.
+  version: 0.0.1
+paths:
+  /session:
+    post:
+      tags:
+        - Login
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 32
+        required: true
+      responses:
+        '201':
+          description: User log-in action successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  identifier:
+                    type: string
+                    example: "abcdef012345"
+  /users/{uid}:
+    summary: Represents a user
+    description: |-
+      The resource represent an individual users registered on WasaPhoto.
+      Each user is identified by a numeric unique id.
+    get:
+      tags:
+        - Users
+      summary: Gets a user by its uid.
+      description: |-
+        Retrieve the personal details of a single user: [uid, name, ecc...].
+      operationId: getUserProfile
+      parameters:
+        - $ref: '#/components/parameters/uid'
+      responses:
+        '200':
+          description: Users information retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: No existing user with specified uid.
+    put:
+      tags:
+        - Users
+      summary: Change the username of uid.
+      description: |-
+        Change the username of a user identified by a numeric unique id.
+      parameters:
+        - $ref: '#/components/parameters/uid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: John Doe
+      responses:
+        '200':
+          description: Username of uid changed successfully.
+        '400':
+          description: Malformed request body.
+        '404':
+          description: No existing user with specified uid.
+  /users/{uid}/follows:
+    summary: Represents the users followed by uid.
+    description: |-
+      The resource represent the list of users followed by uid.
+      Each user followed has its own unique uid.
+    get:
+      tags:
+        - Follow
+      summary: Gets the users followed by uid.
+      description: |-
+        Retrieve the list of the followed users by uid, with their personal name
+        and uid.
+      operationId: getUserFollows
+      parameters:
+        - $ref: '#/components/parameters/uid'
+      responses:
+        '200':
+          description: Users follows retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: No existing user with specified uid.
+  /users/{uid}/follower:
+    summary: Represents the uid followers.
+    description: |-
+      The resource represent the list of uid's follower.
+      Each followe has its own unique uid.
+    get:
+      tags:
+        - Follow
+      summary: Gets the uid's followers.
+      description: |-
+        Retrieve the list of the uid's follower, with their personal name
+        and uid.
+      operationId: getUserFollers
+      parameters:
+        - $ref: '#/components/parameters/uid'
+      responses:
+        '200':
+          description: Uid's followers retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '404':
+          description: No existing user with specified uid.
+
+
+components:
+  parameters:
+    uid:
+      name: uid
+      in: path
+      description: The User id
+      required: true
+      schema:
+        type: string
+        example: "abcdef012345"
+  schemas:
+    User:
+      type: object
+      properties:
+        uid:
+          type: string
+          example: "abcdef012345"
+        name:
+          type: string
+          example: John Doe
