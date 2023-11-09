@@ -42,18 +42,23 @@ paths:
       - $ref: '#/components/parameters/uid'
     get:
       tags:
-        - Users
-      summary: Gets a user by its uid.
+        - User
+      summary: Redirects to the user's profile.
       description: |-
-        Retrieve the personal details of a single user: [uid, name, ecc...].
-      operationId: getUserProfile
+        The resource redirect the request to retrieve the user profile by its own uid.
+      operationId: redirectToUserProfile
       responses:
-        '200':
+        '301':
           description: Users information retrieved successfully.
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /users/{uid}/profile
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/SimpleResponse'
         '404':
           description: No existing user with specified uid.
           content:
@@ -62,7 +67,7 @@ paths:
                 $ref: '#/components/schemas/SimpleResponse'
     put:
       tags:
-        - Users
+        - User
       summary: Change the username of uid.
       description: |-
         Change the username of a user identified by a numeric unique id.
@@ -87,6 +92,50 @@ paths:
                 $ref: '#/components/schemas/SimpleResponse'
         '404':
           description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /users/{uid}/feeds:
+    summary: Represents the user post stream.
+    description: |-
+      The resource represent the list of the most recent posts published by the
+      follows of uid.
+      TODO -> Implements Post schemas and logic
+    parameters:
+      - $ref: '#/components/parameters/uid'
+    get:
+      tags:
+        - User
+      summary: Gets the users Feeds by uid.
+      description: |-
+        Retrieve the list of the most recent posts published by the follows
+        of uid.
+      operationId: getMyStream
+      responses:
+        '200':
+          description: User feed retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /users/{uid}/profile:
+    summary: Represents the user profile.
+    description:  |-
+      The resource represent the details of the user profile: His username,
+      statistics and post.
+    parameters:
+      - $ref: '#/components/parameters/uid'
+    get:
+      tags:
+        - User
+      summary: Gets the user profile
+      description: |-
+        Retrieve the user username, statistics and posts by its uid.
+      operationId: getUserProfile
+      responses:
+        '200':
+          description: User profile retrieved successfully.
           content:
             application/json:
               schema:
