@@ -15,20 +15,16 @@ paths:
         If the user does not exist, it will be created,
         and an identifier is returned.
         If the user exists, the user identifier is returned.
+        TODO - > Make an Authentication Code (Reuse identifier and remove from resources?)
+                 We can also implement another param returned that works in some internal structure of
+                 authentication.
       operationId: doLogin
       requestBody:
         description: User details
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: John Doe
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 32
+              $ref: '#/components/schemas/UsernameText'
         required: true
       responses:
         '201':
@@ -36,16 +32,14 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  identifier:
-                    type: string
-                    example: "abcdef012345"
+                $ref: '#/components/schemas/UserId'
   /users/{uid}:
     summary: Represents a user
     description: |-
       The resource represent an individual users registered on WasaPhoto.
       Each user is identified by a numeric unique id.
+    parameters:
+      - $ref: '#/components/parameters/uid'
     get:
       tags:
         - Users
@@ -53,8 +47,6 @@ paths:
       description: |-
         Retrieve the personal details of a single user: [uid, name, ecc...].
       operationId: getUserProfile
-      parameters:
-        - $ref: '#/components/parameters/uid'
       responses:
         '200':
           description: Users information retrieved successfully.
@@ -64,36 +56,48 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
     put:
       tags:
         - Users
       summary: Change the username of uid.
       description: |-
         Change the username of a user identified by a numeric unique id.
-      parameters:
-        - $ref: '#/components/parameters/uid'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: John Doe
+              $ref: '#/components/schemas/UsernameText'
       responses:
         '200':
           description: Username of uid changed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
         '400':
           description: Malformed request body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
         '404':
           description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
   /users/{uid}/follows:
     summary: Represents the users followed by uid.
     description: |-
       The resource represent the list of users followed by uid.
       Each user followed has its own unique uid.
+    parameters:
+      - $ref: '#/components/parameters/uid'
     get:
       tags:
         - Follow
@@ -102,24 +106,70 @@ paths:
         Retrieve the list of the followed users by uid, with their personal name
         and uid.
       operationId: getUserFollows
-      parameters:
-        - $ref: '#/components/parameters/uid'
       responses:
         '200':
           description: Users follows retrieved successfully.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Users'
         '404':
           description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+  /users/{uid}/follows/{uid2}:
+    parameters:
+      - $ref: '#/components/parameters/uid'
+      - $ref: '#/components/parameters/uid2'
+    post:
+      tags:
+        - Follow
+      summary: Adds an user to the follower of uid.
+      description: |-
+        Adds an user to the follower of uid.
+      operationId: followUser
+      responses:
+        '201':
+          description: User followed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+        '400':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+    delete:
+      tags:
+        - Follow
+      summary: Remove a follow of uid.
+      description: |-
+        Remove the specified follower from the uid's
+      operationId: unfollowUser
+      responses:
+        '200':
+          description: User unfollowed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+        '400':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
   /users/{uid}/follower:
     summary: Represents the uid followers.
     description: |-
       The resource represent the list of uid's follower.
       Each followe has its own unique uid.
+    parameters:
+      - $ref: '#/components/parameters/uid'
     get:
       tags:
         - Follow
@@ -128,20 +178,88 @@ paths:
         Retrieve the list of the uid's follower, with their personal name
         and uid.
       operationId: getUserFollers
-      parameters:
-        - $ref: '#/components/parameters/uid'
       responses:
         '200':
           description: Uid's followers retrieved successfully.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Users'
         '404':
           description: No existing user with specified uid.
-
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /users/{uid}/bans:
+    summary: Represents the uid bans.
+    description: |-
+      The resource represent the list of uid's bans, with theri personal name 
+      and uid.
+    parameters:
+      - $ref: '#/components/parameters/uid'
+    get:
+      tags:
+        - Ban
+      operationId: getUserBans
+      responses:
+        '200':
+          description: Uid's bans retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+  /users/{uid}/bans/{uid2}:
+    parameters:
+      - $ref: '#/components/parameters/uid'
+      - $ref: '#/components/parameters/uid2'
+    post:
+      tags:
+        - Ban
+      summary: Adds an user to the ban list of uid.
+      description: |-
+        Adds an user to the ban list of uid.
+        It also make the user banned unfollow uid.
+      operationId: banUser
+      responses:
+        '201':
+          description: User banned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+        '400':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+    delete:
+      tags:
+        - Ban
+      summary: Remove a banned user from uid's ban list.
+      description: |-
+        Remove the specified follower from uid's ban list.
+      operationId: unbanUser
+      responses:
+        '200':
+          description: User unbanned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
+        '400':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleResponse'
 
 components:
   parameters:
@@ -153,13 +271,46 @@ components:
       schema:
         type: string
         example: "abcdef012345"
+    uid2:
+      name: uid2
+      in: path
+      description: The Second User id
+      required: true
+      schema:
+        type: string
+        example: "abcdef012345"
   schemas:
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+      minItems: 0
+      maxItems: 200
     User:
+      allOf:
+        - $ref: '#/components/schemas/UsernameText'
+        - $ref: '#/components/schemas/UserId'
+    SimpleResponse:
       type: object
       properties:
-        uid:
+        status_code:
+          type: integer
+          example: "200"
+        message:
           type: string
-          example: "abcdef012345"
-        name:
+          example: "OK"
+    UsernameText:
+      type: object
+      properties:
+        username:
           type: string
           example: John Doe
+          pattern: '^.*?$'
+          minLength: 3
+          maxLength: 16
+    UserId:
+      type: object
+      properties:
+        identifier:
+          type: string
+          example: "abcdef012345"
