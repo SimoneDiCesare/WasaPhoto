@@ -6,9 +6,9 @@ info:
     providing functions to obtain and change informations about users and posts.
   version: 0.0.1
 tags:
-  - name: Login
+  - name: Session
     description: |-
-      Tag related to user authentication and login operations.
+      Tag related to user creation, authentication and login operations.
   - name: User
     description: |-
       Tag related to general user-related operations.
@@ -22,7 +22,7 @@ paths:
   /session:
     post:
       tags:
-        - Login
+        - Session
       summary: Logs in the user
       description: |-
         If the user does not exist, it will be created,
