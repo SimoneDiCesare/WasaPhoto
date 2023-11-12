@@ -5,6 +5,19 @@ info:
     This API defines how an application can interface with the WasaPhoto social,
     providing functions to obtain and change informations about users and posts.
   version: 0.0.1
+tags:
+  - name: Login
+    description: |-
+      Tag related to user authentication and login operations.
+  - name: User
+    description: |-
+      Tag related to general user-related operations.
+  - name: Follow
+    description: |-
+      Tag related to follows/follower-related operations.
+  - name: Privacy
+    description: |-
+      Tag related to user privacy-related operations.
 paths:
   /session:
     post:
@@ -15,9 +28,6 @@ paths:
         If the user does not exist, it will be created,
         and an identifier is returned.
         If the user exists, the user identifier is returned.
-        TODO - > Make an Authentication Code (Reuse identifier and remove from resources?)
-                 We can also implement another param returned that works in some internal structure of
-                 authentication.
       operationId: doLogin
       requestBody:
         description: User details
@@ -27,12 +37,18 @@ paths:
               $ref: '#/components/schemas/UsernameText'
         required: true
       responses:
-        '201':
+        '200':
           description: User log-in action successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserId'
+                $ref: '#/components/schemas/LoginResponse'
+        '201':
+          description: Created new User and logged-in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
   /users/{uid}:
     summary: Represents a user
     description: |-
@@ -64,14 +80,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
     put:
       tags:
         - User
       summary: Change the username of uid.
       description: |-
         Change the username of a user identified by a numeric unique id.
+      security:
+        - bearerAuth: []
       requestBody:
+        description: |-
+          The new username for uid.
         required: true
         content:
           application/json:
@@ -95,7 +115,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/feeds:
     summary: Represents the user post stream.
     description: |-
@@ -112,6 +132,8 @@ paths:
         Retrieve the list of the most recent posts published by the follows
         of uid.
       operationId: getMyStream
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: User feed retrieved successfully.
@@ -119,6 +141,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
+        '404':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/profile:
     summary: Represents the user profile.
     description:  |-
@@ -140,6 +168,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
+        '404':
+          description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/follows:
     summary: Represents the users followed by uid.
     description: |-
@@ -155,6 +189,8 @@ paths:
         Retrieve the list of the followed users by uid, with their personal name
         and uid.
       operationId: getUserFollows
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Users follows retrieved successfully.
@@ -167,7 +203,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Users'
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/follows/{uid2}:
     parameters:
       - $ref: '#/components/parameters/uid'
@@ -179,6 +215,8 @@ paths:
       description: |-
         Adds an user to the follower of uid.
       operationId: followUser
+      security:
+        - bearerAuth: []
       responses:
         '201':
           description: User followed.
@@ -186,12 +224,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
-        '400':
+        '404':
           description: No existing user with specified uid.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
     delete:
       tags:
         - Follow
@@ -199,6 +237,8 @@ paths:
       description: |-
         Remove the specified follower from the uid's
       operationId: unfollowUser
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: User unfollowed.
@@ -206,12 +246,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
-        '400':
+        '404':
           description: No existing user with specified uid.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/follower:
     summary: Represents the uid followers.
     description: |-
@@ -227,6 +267,8 @@ paths:
         Retrieve the list of the uid's follower, with their personal name
         and uid.
       operationId: getUserFollers
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Uid's followers retrieved successfully.
@@ -239,7 +281,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/bans:
     summary: Represents the uid bans.
     description: |-
@@ -249,8 +291,10 @@ paths:
       - $ref: '#/components/parameters/uid'
     get:
       tags:
-        - Ban
+        - Privacy
       operationId: getUserBans
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Uid's bans retrieved successfully.
@@ -258,24 +302,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Users'
-        '400':
+        '404':
           description: No existing user with specified uid.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
   /users/{uid}/bans/{uid2}:
     parameters:
       - $ref: '#/components/parameters/uid'
       - $ref: '#/components/parameters/uid2'
     post:
       tags:
-        - Ban
+        - Privacy
       summary: Adds an user to the ban list of uid.
       description: |-
         Adds an user to the ban list of uid.
         It also make the user banned unfollow uid.
       operationId: banUser
+      security:
+        - bearerAuth: []
       responses:
         '201':
           description: User banned.
@@ -283,19 +329,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
-        '400':
+        '404':
           description: No existing user with specified uid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoUserFoundResponse'
+        '409':
+          description: User is already banned.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
     delete:
       tags:
-        - Ban
+        - Privacy
       summary: Remove a banned user from uid's ban list.
       description: |-
         Remove the specified follower from uid's ban list.
       operationId: unbanUser
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: User unbanned.
@@ -303,14 +357,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SimpleResponse'
-        '400':
-          description: No existing user with specified uid.
+        '404':
+          description: One or both uids does not exist.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/NoUserFoundResponse'
 
 components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT 
   parameters:
     uid:
       name: uid
@@ -329,6 +388,17 @@ components:
         type: string
         example: "abcdef012345"
   schemas:
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/UsernameText'
+        - $ref: '#/components/schemas/UserId'
+        - $ref: '#/components/schemas/BearerToken'
+    BearerToken:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "jsonwebtoken"
     Users:
       type: array
       items:
@@ -344,16 +414,25 @@ components:
       properties:
         status_code:
           type: integer
-          example: "200"
+          example: 200
         message:
           type: string
           example: "OK"
+    NoUserFoundResponse:
+      type: object
+      properties:
+        status_code:
+          type: integer
+          default: 404
+        message:
+          type: string
+          default: "No user found"
     UsernameText:
       type: object
       properties:
         username:
           type: string
-          example: John Doe
+          example: "John Doe"
           pattern: '^.*?$'
           minLength: 3
           maxLength: 16
