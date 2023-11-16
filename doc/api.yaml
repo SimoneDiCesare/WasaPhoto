@@ -173,7 +173,6 @@ paths:
                 $ref: '#/components/schemas/User'
         '404':
           $ref: '#/components/responses/UserNotFound'
-# User Follows/Follower logic ------------------------------------------------------------------------
   /users/{uid}/follows:
     summary: Represents the users followed by uid.
     description: |-
@@ -204,7 +203,6 @@ paths:
     parameters:
       - $ref: '#/components/parameters/uid'
       - $ref: '#/components/parameters/uid2'
-# TODO: Add Get redirecto to uid2 profile
     post:
       tags:
         - Follow
@@ -268,7 +266,6 @@ paths:
         '404':
           $ref: '#/components/responses/UserNotFound'
   /users/{uid}/follower/{uid2}:
-# TODO: Add Get redirect to uid2 profile
     parameters:
       - $ref: '#/components/parameters/uid'
       - $ref: '#/components/parameters/uid2'
@@ -359,14 +356,264 @@ paths:
                 $ref: '#/components/schemas/GenericRequestContent'
         '404':
           $ref: '#/components/responses/UserNotFound'
-# TODO: Add /posts/{pid} => post, get, delete
-#           /posts/{pid}/comments => get
-#           /posts/{pid}/comments/{cid} => get, put and delete
-#           /posts/{pid}/owner => get(redirects)
-#           /posts/{pid}/caption => get and put
-#       Add schema for cid
-#       Clean check
-#       Dummy properties (min/max, summary, description, string pattern)
+  /posts:
+    summary: Represents the entirety of posts of WasaPhoto.
+    description: |-
+      The resource represent the entirety of posts on WasaPhoto.
+      Each post has its own pid, and this resource is used only for creating a new post.
+    post:
+      tags:
+        - Post
+      summary: Create a new Post.
+      description: |-
+        Create a new post with its info in the current timestamp.
+        As a result, the uploaded image will be stored in /posts/{pid}/image.(png|jpg)
+      operationId: uploadPhoto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '201':
+          description: New Post Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  /posts/{pid}:
+    summary: Represents a post
+    description: |-
+      The resource represent a single post uploaded on WasaPhoto.
+      Each post is identified by an alfa-unique id.
+    parameters:
+      - $ref: '#/components/parameters/pid'
+    get:
+      tags:
+        - Post
+      summary: Get the pid post information.
+      description: |-
+        Gets the post with pid infos.
+      operationId: getPost
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Post retrieved succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          $ref: '#/components/responses/PostNotFound'
+    delete:
+      tags:
+        - Post
+      summary: Remove the pid post.
+      description: |-
+        Removes the post, clearing comments and image uploaded.
+      operationId: deletePhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '404':
+          $ref: '#/components/responses/PostNotFound'
+  /posts/{pid}/comments:
+    summary: Represents the list of comments of a post.
+    description: |-
+      The resource represent the list of comments below a single post
+      with pid.
+    parameters:
+      - $ref: '#/components/parameters/pid'
+    post:
+      tags:
+        - Post
+      summary: Create a new Comment for a post.
+      description: |-
+        Create a new comment with its info for a post.
+      operationId: commentPhoto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewComment'
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '201':
+          description: New Comment Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    get:
+      tags:
+        - Post
+      summary: Get the list of comments of pid post.
+      description: |-
+        Gets the post with pid comments.
+      operationId: getPostComments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Comments retrieved succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comments'
+        '404':
+          $ref: '#/components/responses/PostNotFound'
+  /posts/{pid}/comments/{cid}:
+    summary: Represents a post
+    description: |-
+      The resource represent a single comment of a post uploaded on WasaPhoto.
+      Each comment and post are identified by an alfa-unique id.
+    parameters:
+      - $ref: '#/components/parameters/pid'
+      - $ref: '#/components/parameters/cid'
+    get:
+      tags:
+        - Post
+      summary: Get the comment of a post.
+      description: |-
+        Gets the comment with cid of a pid post.
+      operationId: getPostComment
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Comment retrieved succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '404':
+          $ref: '#/components/responses/CommentNotFound'
+    delete:
+      tags:
+        - Post
+      summary: Remove a comment from a post.
+      description: |-
+        Removes the cid comment from the pid post.
+      operationId: uncommentPhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '404':
+          $ref: '#/components/responses/CommentNotFound'
+  /posts/{pid}/owner:
+    summary: Path for redirecting to owner profile.
+    description: |-
+      This resource redirects to the /users/{owner_uid}/profile path.
+    parameters:
+      - $ref: '#/components/parameters/pid'
+    get:
+      tags:
+        - Post
+      summary: Redirects to the owner's profile.
+      description: |-
+        The resource redirect the request to retrieve the owner profile by its
+        own uid.
+      operationId: redirectToOwnerProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '301':
+          description: Users information retrieved successfully. Redirected request.
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /users/{uid}/profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericRequestContent'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+  /posts/{pid}/likes:
+    summary: The list of likes of a post.
+    description: |-
+      The resource represents the list of likes of a single post.
+    parameters:
+      - $ref: '#/components/parameters/pid'
+    post:
+      tags:
+        - Post
+      summary: Adds a like to the post.
+      description: |-
+        The resource add a like to the pid post.
+      operationId: likePhoto
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserId'
+      responses:
+        '201':
+          $ref: '#/components/responses/SimpleOkResponse'
+    get:
+      tags:
+        - Post
+      summary: Gets the post's likes.
+      description: |-
+        The resource retrieve the list of all likes of the pid post.
+      operationId: getPostLikes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Likes retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserIds'
+        '404':
+          $ref: '#/components/responses/PostNotFound'
+  /posts/{pid}/likes/{uid}:
+    summary: A single like of a post.
+    description: |-
+      The resource represents a single like from an user of the pid post.
+      The like resource is just the uid resource.
+    parameters:
+      - $ref: '#/components/parameters/pid'
+      - $ref: '#/components/parameters/uid'
+    delete:
+      tags:
+        - Post
+      summary: Remove the like
+      description: |-
+        Removes the like of the uid of the pid post.
+      operationId: unlikePhoto
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
+          
+# TODO: 
+#   Clean check
+#   Dummy properties (min/max, summary, description, string pattern)
 components:
   securitySchemes:
     bearerAuth:
@@ -397,7 +644,15 @@ components:
       required: true
       schema:
         type: string
-        example: "abcdef102345"
+        example: "abcdefgh0123456"
+    cid:
+      name: cid
+      in: path
+      description: The Comment Id
+      required: true
+      schema:
+        type: string
+        example: "abcdefgh0123456"
   schemas:
     BearerToken:
       type: object
@@ -413,6 +668,12 @@ components:
           example: "abcdef012345"
           minLength: 12
           maxLength: 12
+    UserIds:
+      type: array
+      items:
+        $ref: '#/components/schemas/UserId'
+      minItems: 0
+      maxItems: 1000
     UserName:
       type: object
       properties:
@@ -444,6 +705,14 @@ components:
         uri:
           type: string
           format: uri
+    CommentId:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "abcdefgh0123456"
+          minLength: 15
+          maxLength: 15
     UserSession:
       properties:
         id:
@@ -480,6 +749,24 @@ components:
         $ref: '#/components/schemas/User'
       minItems: 0
       maxItems: 200
+    NewPost:
+      type: object
+      properties:
+        ownerId:
+          $ref: '#/components/schemas/UserId'
+        caption:
+          $ref: '#/components/schemas/PostText'
+        image:
+          type: string
+          format: binary
+          description: The image file to be uploaded.
+    NewComment:
+      type: object
+      properties:
+        ownerId:
+          $ref: '#/components/schemas/UserId'
+        text:
+          $ref: '#/components/schemas/PostText'
     Post:
       properties:
         id:
@@ -504,6 +791,8 @@ components:
     Comment:
       type: object
       properties:
+        id:
+          $ref: '#/components/schemas/CommentId'
         owner:
           $ref: '#/components/schemas/UserId'
         content:
@@ -564,7 +853,7 @@ components:
               message:
                 type: string
                 default: "No post found"
-    CommentNotFoun:
+    CommentNotFound:
       description: Comment not Found.
       content:
         application/json:
