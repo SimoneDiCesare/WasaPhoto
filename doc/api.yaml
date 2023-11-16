@@ -18,6 +18,9 @@ tags:
   - name: Privacy
     description: |-
       Tag related to user privacy-related operations.
+  - name: Post
+    description: |-
+      Tag related to general post-related operations.
 paths:
   /session:
     post:
@@ -34,7 +37,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsernameText'
+              $ref: '#/components/schemas/UserName'
         required: true
       responses:
         '200':
@@ -42,13 +45,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                $ref: '#/components/schemas/UserSession'
         '201':
           description: Created new User and logged-in
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
+                $ref: '#/components/schemas/UserSession'
   /users/{uid}:
     summary: Represents a user
     description: |-
@@ -63,9 +66,13 @@ paths:
       description: |-
         The resource redirect the request to retrieve the user profile by its own uid.
       operationId: redirectToUserProfile
+      security:
+        - bearerAuth: []
       responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
         '301':
-          description: Users information retrieved successfully.
+          description: Users information retrieved successfully. Redirected request.
           headers:
             Location:
               schema:
@@ -74,19 +81,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
     put:
       tags:
         - User
       summary: Change the username of uid.
       description: |-
         Change the username of a user identified by a numeric unique id.
+      operationId: setMyUserName
       security:
         - bearerAuth: []
       requestBody:
@@ -96,32 +100,37 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UsernameText'
+              $ref: '#/components/schemas/UserName'
       responses:
         '200':
-          description: Username of uid changed successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SimpleResponse'
+          $ref: '#/components/responses/SimpleOkResponse'
         '400':
           description: Malformed request body.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
+    delete:
+      tags:
+        - User
+      summary: Delete the user.
+      description: |-
+        Deletes the user associatet with uid.
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SimpleOkResponse'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
   /users/{uid}/feeds:
     summary: Represents the user post stream.
     description: |-
       The resource represent the list of the most recent posts published by the
       follows of uid.
-      TODO -> Implements Post schemas and logic
     parameters:
       - $ref: '#/components/parameters/uid'
     get:
@@ -136,17 +145,9 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: User feed retrieved successfully.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SimpleResponse'
+          $ref: '#/components/responses/SimpleOkResponse'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
   /users/{uid}/profile:
     summary: Represents the user profile.
     description:  |-
@@ -161,19 +162,18 @@ paths:
       description: |-
         Retrieve the user username, statistics and posts by its uid.
       operationId: getUserProfile
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: User profile retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/User'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
+# User Follows/Follower logic ------------------------------------------------------------------------
   /users/{uid}/follows:
     summary: Represents the users followed by uid.
     description: |-
@@ -199,15 +199,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Users'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
   /users/{uid}/follows/{uid2}:
     parameters:
       - $ref: '#/components/parameters/uid'
       - $ref: '#/components/parameters/uid2'
+# TODO: Add Get redirecto to uid2 profile
     post:
       tags:
         - Follow
@@ -223,13 +220,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
     delete:
       tags:
         - Follow
@@ -245,13 +238,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
   /users/{uid}/follower:
     summary: Represents the uid followers.
     description: |-
@@ -277,11 +266,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/Users'
         '404':
-          description: No existing user with specified uid.
+          $ref: '#/components/responses/UserNotFound'
+  /users/{uid}/follower/{uid2}:
+# TODO: Add Get redirect to uid2 profile
+    parameters:
+      - $ref: '#/components/parameters/uid'
+      - $ref: '#/components/parameters/uid2'
+    post:
+      tags:
+        - Follow
+      summary: Adds an user to the follower of uid.
+      description: |-
+        Adds an user to the follower of uid.
+      operationId: getFollower
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: User followed.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
   /users/{uid}/bans:
     summary: Represents the uid bans.
     description: |-
@@ -303,11 +311,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Users'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
   /users/{uid}/bans/{uid2}:
     parameters:
       - $ref: '#/components/parameters/uid'
@@ -328,19 +332,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
         '404':
-          description: No existing user with specified uid.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
+          $ref: '#/components/responses/UserNotFound'
         '409':
           description: User is already banned.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
     delete:
       tags:
         - Privacy
@@ -356,25 +356,28 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SimpleResponse'
+                $ref: '#/components/schemas/GenericRequestContent'
         '404':
-          description: One or both uids does not exist.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoUserFoundResponse'
-
+          $ref: '#/components/responses/UserNotFound'
+# TODO: Add /posts/{pid} => post, get, delete
+#           /posts/{pid}/comments => get
+#           /posts/{pid}/comments/{cid} => get, put and delete
+#           /posts/{pid}/owner => get(redirects)
+#           /posts/{pid}/caption => get and put
+#       Add schema for cid
+#       Clean check
+#       Dummy properties (min/max, summary, description, string pattern)
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT 
+      bearerFormat: JWT
   parameters:
     uid:
       name: uid
       in: path
-      description: The User id
+      description: The User Id
       required: true
       schema:
         type: string
@@ -382,63 +385,201 @@ components:
     uid2:
       name: uid2
       in: path
-      description: The Second User id
+      description: The second User Id
       required: true
       schema:
         type: string
         example: "abcdef012345"
+    pid:
+      name: pid
+      in: path
+      description: The Post Id
+      required: true
+      schema:
+        type: string
+        example: "abcdef102345"
   schemas:
-    LoginResponse:
-      allOf:
-        - $ref: '#/components/schemas/UsernameText'
-        - $ref: '#/components/schemas/UserId'
-        - $ref: '#/components/schemas/BearerToken'
     BearerToken:
       type: object
       properties:
         token:
           type: string
           example: "jsonwebtoken"
+    UserId:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "abcdef012345"
+          minLength: 12
+          maxLength: 12
+    UserName:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "JohnDoe"
+          pattern: '[a-zA-Z0-9_](3-20)'
+          minLength: 3
+          maxLength: 20
+    PostId:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "abcdefgh0123456"
+          minLength: 15
+          maxLength: 15
+    PostText:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "This is a comment"
+          minLength: 0
+          maxLength: 200
+    ImageUrl:
+      type: object
+      properties:
+        uri:
+          type: string
+          format: uri
+    UserSession:
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        username:
+          $ref: '#/components/schemas/UserName'
+        token:
+          $ref: '#/components/schemas/BearerToken'
+    UserBio:
+      properties:
+        bio:
+          type: string
+          minLength: 0
+          maxLength: 50
+    User:
+      properties:
+        id:
+          $ref: '#/components/schemas/UserId'
+        username:
+          $ref: '#/components/schemas/UserName'
+        bio:
+          $ref: '#/components/schemas/UserBio'
+        profileImage:
+          $ref: '#/components/schemas/ImageUrl'
+        posts:
+          $ref: '#/components/schemas/Posts'
+        follower:
+          $ref: '#/components/schemas/Follower'
+        follows:
+          $ref: '#/components/schemas/Follows'
     Users:
       type: array
       items:
         $ref: '#/components/schemas/User'
       minItems: 0
       maxItems: 200
-    User:
-      allOf:
-        - $ref: '#/components/schemas/UsernameText'
-        - $ref: '#/components/schemas/UserId'
-    SimpleResponse:
+    Post:
+      properties:
+        id:
+          $ref: '#/components/schemas/PostId'
+        caption:
+          $ref: '#/components/schemas/PostText'
+        image:
+          $ref: '#/components/schemas/ImageUrl'
+        comments:
+          $ref: '#/components/schemas/Comments'
+        createdAt:
+          type: string
+          format: date-time
+        likes:
+          type: integer
+    Posts:
+      type: array
+      items:
+        $ref: '#/components/schemas/Post'
+      minItems: 0
+      maxItems: 30
+    Comment:
+      type: object
+      properties:
+        owner:
+          $ref: '#/components/schemas/UserId'
+        content:
+          $ref: '#/components/schemas/PostText'
+    Comments:
+      type: array
+      items:
+        $ref: '#/components/schemas/Comment'
+      minItems: 0
+      maxItems: 200
+    Follower:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+      minItems: 0
+      maxItems: 200
+    Follows:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+      minItems: 0
+      maxItems: 200
+    GenericRequestContent:
       type: object
       properties:
         status_code:
           type: integer
           example: 200
+          default: 200
         message:
           type: string
-          example: "OK"
-    NoUserFoundResponse:
-      type: object
-      properties:
-        status_code:
-          type: integer
-          default: 404
-        message:
-          type: string
-          default: "No user found"
-    UsernameText:
-      type: object
-      properties:
-        username:
-          type: string
-          example: "John Doe"
-          pattern: '^.*?$'
-          minLength: 3
-          maxLength: 16
-    UserId:
-      type: object
-      properties:
-        identifier:
-          type: string
-          example: "abcdef012345"
+          example: "Ok"
+          default: "Ok"
+  responses:
+    UserNotFound:
+      description: User not Found.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: integer
+                default: 404
+              message:
+                type: string
+                default: "No user found"
+    PostNotFound:
+      description: Post not Found.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: integer
+                default: 404
+              message:
+                type: string
+                default: "No post found"
+    CommentNotFoun:
+      description: Comment not Found.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status_code:
+                type: integer
+                default: 404
+              message:
+                type: string
+                default: "No comment found"
+    SimpleOkResponse:
+      description: Simple Successful Operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GenericRequestContent'
