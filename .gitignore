@@ -12,3 +12,5 @@ docker-compose.log
 /doc/json
 /doc/markdown
 webapi
+/config/
+*.db
