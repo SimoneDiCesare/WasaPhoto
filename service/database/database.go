@@ -38,8 +38,7 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
+	LoginUser(string) (string, string, error)
 
 	Ping() error
 }
@@ -56,19 +55,30 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
-	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
-	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
+	for _, tableName := range []string{"users"} {
+		var flag string
+		err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableName).Scan(&flag)
+		if errors.Is(err, sql.ErrNoRows) {
+			err = createTables(db)
+			if err != nil {
+				return nil, fmt.Errorf("error creating database structure: %w", err)
+			}
+			break
 		}
 	}
 
 	return &appdbimpl{
 		c: db,
 	}, nil
+}
+
+func createTables(db *sql.DB) error {
+	sqlStmt := "CREATE TABLE users (id TEXT PRIMARY KEY, username TEXT, token TEXT);"
+	_, err := db.Exec(sqlStmt)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db *appdbimpl) Ping() error {

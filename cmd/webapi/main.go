@@ -83,6 +83,14 @@ func run() error {
 
 	// Start Database
 	logger.Println("initializing database support")
+	if cfg.DB.Temp {
+		logger.Infof("removing old database")
+		err = os.Remove(cfg.DB.Filename)
+		if err != nil {
+			logger.WithError(err).Error("error cleaning SQLite DB")
+			return fmt.Errorf("cleaning SQLite: %w", err)
+		}
+	}
 	dbconn, err := sql.Open("sqlite3", cfg.DB.Filename)
 	if err != nil {
 		logger.WithError(err).Error("error opening SQLite DB")
