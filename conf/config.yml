@@ -1,5 +1,5 @@
 config:
-  path: "/custom/config.yml"
+  path: "/conf/config.yml"
 web:
   apihost: "0.0.0.0:8080"
   debughost: "0.0.0.0:4000"
