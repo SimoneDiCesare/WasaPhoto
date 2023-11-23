@@ -34,6 +34,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/SimoneDiCesare/WasaPhoto/service/database/queries"
+	"github.com/sirupsen/logrus"
 )
 
 // AppDatabase is the high level interface for the DB
@@ -49,21 +52,23 @@ type appdbimpl struct {
 
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
 // `db` is required - an error will be returned if `db` is `nil`.
-func New(db *sql.DB) (AppDatabase, error) {
+func New(db *sql.DB, logger *logrus.Logger) (AppDatabase, error) {
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
-
-	// Check if table exists. If not, the database is empty, and we need to create the structure
-	for _, tableName := range []string{"users"} {
+	// Check tables in db, and creates it if they are missing
+	logger.Debugf("Checking db integrity ")
+	for _, tableCheck := range queries.TablesCheck {
 		var flag string
-		err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableName).Scan(&flag)
+		logger.Debugf("Checking table %s", tableCheck.TableName)
+		err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableCheck.TableName).Scan(&flag)
 		if errors.Is(err, sql.ErrNoRows) {
-			err = createTables(db)
+			err = createTable(db, tableCheck.CreateQuery, logger)
 			if err != nil {
 				return nil, fmt.Errorf("error creating database structure: %w", err)
 			}
-			break
+		} else {
+			logger.Debugf("Table %s OK", tableCheck.TableName)
 		}
 	}
 
@@ -72,12 +77,9 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}, nil
 }
 
-func createTables(db *sql.DB) error {
-	sqlStmt := "CREATE TABLE users (id VARCHAR(12) PRIMARY KEY, username VARCHAR(20), token VARCHAR(200));\n"
-	/*sqlStmt = sqlStmt + "CREATE TABLE posts (pid  VARCHAR(15), caption VARCHAR(200), PRIMARY KEY (pid));\n"
-	sqlStmt = sqlStmt + "CREATE TABLE comments (cid  VARCHAR(15), pid TEXT, uid TEXT, content VARCHAR(200)," +
-		" PRIMARY KEY (cid, pid), FOREIGN KEY (pid) REFERENCES posts(pid), FOREIGN KEY (uid) REFERENCES users(uid));\n"*/
-	_, err := db.Exec(sqlStmt)
+func createTable(db *sql.DB, query string, logger *logrus.Logger) error {
+	logger.Debugf("Creating table:\n\t%s\n", query)
+	_, err := db.Exec(query)
 	if err != nil {
 		return err
 	}

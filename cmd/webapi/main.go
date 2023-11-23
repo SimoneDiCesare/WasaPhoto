@@ -28,15 +28,14 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/SimoneDiCesare/WasaPhoto/service/api"
+	"github.com/SimoneDiCesare/WasaPhoto/service/cypher"
 	"github.com/SimoneDiCesare/WasaPhoto/service/database"
-	"github.com/SimoneDiCesare/WasaPhoto/service/globaltime"
 	"github.com/ardanlabs/conf"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
@@ -45,6 +44,7 @@ import (
 // main is the program entry point. The only purpose of this function is to call run() and set the exit code if there is
 // any error
 func main() {
+	cypher.InitRng()
 	if err := run(); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "error: ", err)
 		os.Exit(1)
@@ -60,7 +60,6 @@ func main() {
 // * waits for any termination event: SIGTERM signal (UNIX), non-recoverable server error, etc.
 // * closes the principal web server
 func run() error {
-	rand.Seed(globaltime.Now().UnixNano())
 	// Load Configuration and defaults
 	cfg, err := loadConfiguration()
 	if err != nil {
@@ -87,8 +86,7 @@ func run() error {
 		logger.Infof("removing old database")
 		err = os.Remove(cfg.DB.Filename)
 		if err != nil {
-			logger.WithError(err).Error("error cleaning SQLite DB")
-			return fmt.Errorf("cleaning SQLite: %w", err)
+			logger.WithError(err).Warnf("can't cleaning SQLite DB")
 		}
 	}
 	dbconn, err := sql.Open("sqlite3", cfg.DB.Filename)
@@ -100,7 +98,7 @@ func run() error {
 		logger.Debug("database stopping")
 		_ = dbconn.Close()
 	}()
-	db, err := database.New(dbconn)
+	db, err := database.New(dbconn, logger)
 	if err != nil {
 		logger.WithError(err).Error("error creating AppDatabase")
 		return fmt.Errorf("creating AppDatabase: %w", err)

@@ -641,6 +641,7 @@ components:
         example: "abcdef012345"
         minLength: 12
         maxLength: 12
+        pattern: '^[a-zA-Z0-9]{12}$'
     uid2:
       name: uid2
       in: path
@@ -653,6 +654,7 @@ components:
         example: "abcdef012345"
         minLength: 12
         maxLength: 12
+        pattern: '^[a-zA-Z0-9]{12}$'
     pid:
       name: pid
       in: path
@@ -665,6 +667,7 @@ components:
         example: "abcdefgh0123456"
         minLength: 15
         maxLength: 15
+        pattern: '^[a-zA-Z0-9]{15}$'
     cid:
       name: cid
       in: path
@@ -677,6 +680,7 @@ components:
         example: "abcdefgh0123456"
         minLength: 15
         maxLength: 15
+        pattern: '^[a-zA-Z0-9]{15}$'
   schemas:
     BearerToken:
       type: object
@@ -764,6 +768,17 @@ components:
           pattern: '^\/posts\/[a-zA-Z0-9]{15}\/image\.png$'
           minLength: 32
           maxLength: 32
+    ProfileImageUrl:
+      type: object
+      properties:
+        uri:
+          description: The uri of the image of a post
+          type: string
+          format: uri
+          example: /users/{uid}/profile.png
+          pattern: '^\/users\/[a-zA-Z0-9]{12}\/profile\.png$'
+          minLength: 31
+          maxLength: 31
     CommentId:
       type: object
       properties:
@@ -798,7 +813,7 @@ components:
         bio:
           $ref: '#/components/schemas/UserBio'
         profileImage:
-          $ref: '#/components/schemas/ImageUrl'
+          $ref: '#/components/schemas/ProfileImageUrl'
         posts:
           $ref: '#/components/schemas/Posts'
         follower:

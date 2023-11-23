@@ -1,8 +1,6 @@
 package api
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -20,7 +18,7 @@ type UserSession struct {
 
 func (rt *_router) postUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Getting username
-	bodyContent, err := io.ReadAll(r.Body)
+	/*bodyContent, err := io.ReadAll(r.Body)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error reading request body")
 		http.Error(w, "Error reading request body", http.StatusInternalServerError)
@@ -55,5 +53,5 @@ func (rt *_router) postUserSession(w http.ResponseWriter, r *http.Request, ps ht
 	} else {
 		rt.baseLogger.WithError(err).Error("Invalid request body")
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-	}
+	}*/
 }

@@ -1,12 +1,10 @@
-config:
-  path: "/conf/config.yml"
 web:
-  apihost: "0.0.0.0:3000"
-  debughost: "0.0.0.0:4000"
-  readtimeout: "5s"
-  writetimeout: "5s"
-  shutdowntimeout: "5s"
-debug: false
+  apihost: "0.0.0.0:8080"
+  debughost: "0.0.0.0:8081"
+  readtimeout: "10s"
+  writetimeout: "10s"
+  shutdowntimeout: "10s"
+debug: true
 db:
   filename: "wasaphoto.db"
-  temp: true
+  temp: false
