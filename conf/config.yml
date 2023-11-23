@@ -9,4 +9,4 @@ web:
 debug: false
 db:
   filename: "wasaphoto.db"
-  temp: false
+  temp: true

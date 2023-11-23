@@ -76,6 +76,8 @@ paths:
           headers:
             Location:
               schema:
+                description: |-
+                  The url of the profile in which the request should be redirected.
                 type: string
                 example: /users/{uid}/profile
                 minLength: 27
@@ -540,6 +542,8 @@ paths:
           headers:
             Location:
               schema:
+                description: |-
+                  The url of the profile in which the request should be redirected.
                 type: string
                 example: /users/{uid}/profile
                 minLength: 27
@@ -631,6 +635,8 @@ components:
       description: The User Id
       required: true
       schema:
+        description: |-
+          The unique user id
         type: string
         example: "abcdef012345"
         minLength: 12
@@ -641,6 +647,8 @@ components:
       description: The second User Id
       required: true
       schema:
+        description: |-
+          The unique user id
         type: string
         example: "abcdef012345"
         minLength: 12
@@ -651,6 +659,8 @@ components:
       description: The Post Id
       required: true
       schema:
+        description: |-
+          The unique post id
         type: string
         example: "abcdefgh0123456"
         minLength: 15
@@ -661,6 +671,8 @@ components:
       description: The Comment Id
       required: true
       schema:
+        description: |-
+          The unique comment id
         type: string
         example: "abcdefgh0123456"
         minLength: 15
@@ -699,7 +711,7 @@ components:
           description: An alphanumeric string representing the username of a user
           type: string
           example: "JohnDoe"
-          pattern: '^[a-zA-Z0-9]+$'
+          pattern: '^[a-zA-Z0-9]{3,20}$'
           minLength: 3
           maxLength: 20
     PostId:

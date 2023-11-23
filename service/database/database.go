@@ -73,7 +73,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 }
 
 func createTables(db *sql.DB) error {
-	sqlStmt := "CREATE TABLE users (id TEXT PRIMARY KEY, username TEXT, token TEXT);"
+	sqlStmt := "CREATE TABLE users (id VARCHAR(12) PRIMARY KEY, username VARCHAR(20), token VARCHAR(200));\n"
+	/*sqlStmt = sqlStmt + "CREATE TABLE posts (pid  VARCHAR(15), caption VARCHAR(200), PRIMARY KEY (pid));\n"
+	sqlStmt = sqlStmt + "CREATE TABLE comments (cid  VARCHAR(15), pid TEXT, uid TEXT, content VARCHAR(200)," +
+		" PRIMARY KEY (cid, pid), FOREIGN KEY (pid) REFERENCES posts(pid), FOREIGN KEY (uid) REFERENCES users(uid));\n"*/
 	_, err := db.Exec(sqlStmt)
 	if err != nil {
 		return err
