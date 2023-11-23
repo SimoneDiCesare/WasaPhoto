@@ -20,6 +20,7 @@ const (
 		"token TEXT," +
 		"PRIMARY KEY (uid)" +
 		");"
+	CreateNewUser    = "INSERT INTO users (uid, username, biography, token) VALUES ($1, $2, \"\", $3);"
 	CreatePostsTable = "CREATE TABLE IF NOT EXISTS posts (" +
 		"pid TEXT CHECK(LENGTH(pid) = 15)," +
 		"uid TEXT CHECK(LENGTH(uid) = 12)," +

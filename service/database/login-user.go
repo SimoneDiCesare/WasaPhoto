@@ -5,20 +5,24 @@ import (
 	"database/sql"
 	"encoding/base64"
 
-	"github.com/google/uuid"
+	"github.com/SimoneDiCesare/WasaPhoto/service/cypher"
+	"github.com/SimoneDiCesare/WasaPhoto/service/database/queries"
 )
 
-func createUser(db *appdbimpl, username string) (id string, token string, err error) {
-	id, err = newUserId()
+func createUser(db *appdbimpl, username string) (uid string, token string, err error) {
+	uid, err = newUserId()
 	if err != nil {
 		return "", "", err
 	}
-	token = uuid.New().String()
-	_, err = db.c.Exec("INSERT INTO users (id, username, token) VALUES ($1, $2, $3)", id, username, token)
+	token, err = cypher.GenerateAuthToken(uid)
 	if err != nil {
 		return "", "", err
 	}
-	return id, token, nil
+	_, err = db.c.Exec(queries.CreateNewUser, uid, username, token)
+	if err != nil {
+		return "", "", err
+	}
+	return uid, token, nil
 }
 
 func newUserId() (string, error) {
