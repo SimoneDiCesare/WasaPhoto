@@ -78,6 +78,8 @@ paths:
               schema:
                 type: string
                 example: /users/{uid}/profile
+                minLength: 27
+                maxLength: 27
           content:
             application/json:
               schema:
@@ -540,6 +542,8 @@ paths:
               schema:
                 type: string
                 example: /users/{uid}/profile
+                minLength: 27
+                maxLength: 27
           content:
             application/json:
               schema:
@@ -629,6 +633,8 @@ components:
       schema:
         type: string
         example: "abcdef012345"
+        minLength: 12
+        maxLength: 12
     uid2:
       name: uid2
       in: path
@@ -637,6 +643,8 @@ components:
       schema:
         type: string
         example: "abcdef012345"
+        minLength: 12
+        maxLength: 12
     pid:
       name: pid
       in: path
@@ -645,6 +653,8 @@ components:
       schema:
         type: string
         example: "abcdefgh0123456"
+        minLength: 15
+        maxLength: 15
     cid:
       name: cid
       in: path
@@ -653,21 +663,29 @@ components:
       schema:
         type: string
         example: "abcdefgh0123456"
+        minLength: 15
+        maxLength: 15
   schemas:
     BearerToken:
       type: object
       properties:
         token:
+          description: The bearer token used for authentication during requests
           type: string
-          example: "jsonwebtoken"
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+          pattern: '^[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_.+/=]+$'
+          minLength: 80 
+          maxLength: 80 
     UserId:
       type: object
       properties:
-        id:
+        uid:
+          description: An alphanumeric id that represent a single user
           type: string
           example: "abcdef012345"
           minLength: 12
           maxLength: 12
+          pattern: '^[a-zA-Z0-9]{12}$'
     UserIds:
       type: array
       items:
@@ -678,44 +696,73 @@ components:
       type: object
       properties:
         username:
+          description: An alphanumeric string representing the username of a user
           type: string
           example: "JohnDoe"
-          pattern: '[a-zA-Z0-9_](3-20)'
+          pattern: '^[a-zA-Z0-9]+$'
           minLength: 3
           maxLength: 20
     PostId:
       type: object
       properties:
-        id:
+        pid:
+          description: An alphanumeric id that represent a single post
           type: string
           example: "abcdefgh0123456"
           minLength: 15
           maxLength: 15
-    PostText:
+          pattern: '^[a-zA-Z0-9]{15}$'
+    PostCaption:
       type: object
       properties:
-        id:
+        caption:
+          description: TODO Verify this
+          type: string
+          example: "This is a caption"
+          pattern: '^.{0,200}$'
+          minLength: 0
+          maxLength: 200
+    GenericText:
+      type: object
+      properties:
+        text:
+          description: TODO Verify this
+          type: string
+          example: "This is a generic text"
+          pattern: '^.{0,200}$'
+          minLength: 0
+          maxLength: 200
+    CommentText:
+      type: object
+      properties:
+        content:
           type: string
           example: "This is a comment"
+          pattern: '^.{0,200}$'
           minLength: 0
           maxLength: 200
     ImageUrl:
       type: object
       properties:
         uri:
+          description: The uri of the image of a post
           type: string
           format: uri
+          example: /posts/{pid}/image.png
+          pattern: '^\/posts\/[a-zA-Z0-9]{15}\/image\.png$'
+          minLength: 32
+          maxLength: 32
     CommentId:
       type: object
       properties:
-        id:
+        cid:
           type: string
           example: "abcdefgh0123456"
           minLength: 15
           maxLength: 15
     UserSession:
       properties:
-        id:
+        uid:
           $ref: '#/components/schemas/UserId'
         username:
           $ref: '#/components/schemas/UserName'
@@ -724,12 +771,15 @@ components:
     UserBio:
       properties:
         bio:
+          description: A biography of a user
           type: string
+          example: "Im a cool guy!"
+          pattern: '^.{0,100}$'
           minLength: 0
-          maxLength: 50
+          maxLength: 100
     User:
       properties:
-        id:
+        uid:
           $ref: '#/components/schemas/UserId'
         username:
           $ref: '#/components/schemas/UserName'
@@ -752,35 +802,37 @@ components:
     NewPost:
       type: object
       properties:
-        ownerId:
+        uid:
           $ref: '#/components/schemas/UserId'
         caption:
-          $ref: '#/components/schemas/PostText'
+          $ref: '#/components/schemas/PostCaption'
         image:
+          description: The binary data of the image for the post
           type: string
           format: binary
-          description: The image file to be uploaded.
     NewComment:
       type: object
       properties:
-        ownerId:
+        uid:
           $ref: '#/components/schemas/UserId'
-        text:
-          $ref: '#/components/schemas/PostText'
+        content:
+          $ref: '#/components/schemas/CommentText'
     Post:
       properties:
-        id:
+        pid:
           $ref: '#/components/schemas/PostId'
         caption:
-          $ref: '#/components/schemas/PostText'
+          $ref: '#/components/schemas/PostCaption'
         image:
           $ref: '#/components/schemas/ImageUrl'
         comments:
           $ref: '#/components/schemas/Comments'
         createdAt:
+          description: The time and date in which the post is created
           type: string
           format: date-time
         likes:
+          description: The like count that the post has
           type: integer
     Posts:
       type: array
@@ -791,12 +843,12 @@ components:
     Comment:
       type: object
       properties:
-        id:
+        cid:
           $ref: '#/components/schemas/CommentId'
         owner:
           $ref: '#/components/schemas/UserId'
         content:
-          $ref: '#/components/schemas/PostText'
+          $ref: '#/components/schemas/CommentText'
     Comments:
       type: array
       items:
@@ -819,53 +871,74 @@ components:
       type: object
       properties:
         status_code:
+          description: The http status code of the response
           type: integer
           example: 200
           default: 200
         message:
+          description: The message associated with the response
           type: string
           example: "Ok"
           default: "Ok"
+          minLength: 0
+          maxLength: 100
   responses:
     UserNotFound:
       description: User not Found.
       content:
         application/json:
           schema:
+            description: |-
+              This schema represent a precise 404 response, which indicates that the post id specified does not exists.
             type: object
             properties:
               status_code:
+                description: The http status code of the response
                 type: integer
                 default: 404
               message:
                 type: string
                 default: "No user found"
+                minLength: 13
+                maxLength: 13
     PostNotFound:
       description: Post not Found.
       content:
         application/json:
           schema:
+            description: |-
+              This schema represent a precise 404 response, which indicates that the post id specified does not exists.
             type: object
             properties:
               status_code:
+                description: The http status code of the response
                 type: integer
                 default: 404
               message:
+                description: The message associated with the response
                 type: string
                 default: "No post found"
+                minLength: 13
+                maxLength: 13
     CommentNotFound:
       description: Comment not Found.
       content:
         application/json:
           schema:
+            description: |-
+              This schema represent a precise 404 response, which indicates that the comment id specified does not exists.
             type: object
             properties:
               status_code:
+                description: The http status code of the response
                 type: integer
                 default: 404
               message:
+                description: The message associated with the response
                 type: string
                 default: "No comment found"
+                minLength: 16
+                maxLength: 16
     SimpleOkResponse:
       description: Simple Successful Operation.
       content:
