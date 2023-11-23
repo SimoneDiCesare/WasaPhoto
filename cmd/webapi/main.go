@@ -25,9 +25,7 @@ package main
 
 import (
 	"context"
-	"crypto/rand"
 	"database/sql"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
@@ -45,27 +43,7 @@ import (
 
 // main is the program entry point. The only purpose of this function is to call run() and set the exit code if there is
 // any error
-func newUserId() (string, error) {
-	length := 12
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return "", err
-	}
-	randomID := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(bytes)
-	return randomID[:length], nil
-}
-
 func main() {
-	for i := 0; i < 100; i++ {
-		v, err := newUserId()
-		if err != nil {
-			fmt.Printf("%w\n", err)
-		} else {
-			fmt.Printf("%s\n", v)
-		}
-	}
-	os.Exit(1)
 	cypher.InitRng()
 	if err := run(); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, "error: ", err)

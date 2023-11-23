@@ -3,7 +3,7 @@ package database
 import (
 	"crypto/rand"
 	"database/sql"
-	"encoding/base64"
+	"strings"
 
 	"github.com/SimoneDiCesare/WasaPhoto/service/cypher"
 	"github.com/SimoneDiCesare/WasaPhoto/service/database/queries"
@@ -32,8 +32,13 @@ func newUserId() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	randomID := base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(bytes)
-	return randomID[:length], nil
+	charSet := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	var randomIDBuilder strings.Builder
+	for _, b := range bytes {
+		randomIDBuilder.WriteByte(charSet[int(b)%len(charSet)])
+	}
+	randomID := randomIDBuilder.String()
+	return randomID, nil
 }
 
 func (db *appdbimpl) LoginUser(username string) (id string, token string, err error) {
