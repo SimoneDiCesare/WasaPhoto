@@ -10,6 +10,7 @@ import (
 )
 
 func createUser(db *appdbimpl, username string) (uid string, token string, err error) {
+	// TODO: Check if the uuid and token are really unique.
 	uid, err = newUserId()
 	if err != nil {
 		return "", "", err
