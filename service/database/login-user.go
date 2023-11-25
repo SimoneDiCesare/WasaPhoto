@@ -3,27 +3,28 @@ package database
 import (
 	"crypto/rand"
 	"database/sql"
+	"net/http"
 	"strings"
 
 	"github.com/SimoneDiCesare/WasaPhoto/service/cypher"
 	"github.com/SimoneDiCesare/WasaPhoto/service/database/queries"
 )
 
-func createUser(db *appdbimpl, username string) (uid string, token string, err error) {
+func createUser(db *appdbimpl, username string) (user User, err error) {
 	// TODO: Check if the uuid and token are really unique.
-	uid, err = newUserId()
+	user.Uid, err = newUserId()
 	if err != nil {
-		return "", "", err
+		return user, err
 	}
-	token, err = cypher.GenerateAuthToken(uid)
+	user.Token, err = cypher.GenerateAuthToken(user.Uid)
 	if err != nil {
-		return "", "", err
+		return user, err
 	}
-	_, err = db.c.Exec(queries.CreateNewUser, uid, username, token)
+	_, err = db.c.Exec(queries.CreateNewUser, user.Uid, username, user.Token)
 	if err != nil {
-		return "", "", err
+		return user, err
 	}
-	return uid, token, nil
+	return user, nil
 }
 
 func newUserId() (string, error) {
@@ -42,12 +43,22 @@ func newUserId() (string, error) {
 	return randomID, nil
 }
 
-func (db *appdbimpl) LoginUser(username string) (id string, token string, err error) {
-	err = db.c.QueryRow("SELECT id, token FROM users WHERE username=$1", username).Scan(&id, &token)
-	if err == sql.ErrNoRows {
+func (db *appdbimpl) LoginUser(username string) (int, User, error) {
+	var uid, dummyUsername, biography, token string
+	scanError := db.c.QueryRow(queries.GetUserFromUsername, username).Scan(&uid, &dummyUsername, &biography, &token)
+	if scanError == sql.ErrNoRows {
 		// User does not exist, create a new one
-		return createUser(db, username)
+		db.logger.Infof("Creating new user '%s'", username)
+		user, creationError := createUser(db, username)
+		return http.StatusCreated, user, creationError
+	}
+	user := User{
+		Uid:       uid,
+		Username:  dummyUsername,
+		Biography: biography,
+		Token:     token,
 	}
 	// Retrieved user infos
-	return id, token, err
+	db.logger.Infof("'%s' loggin", username)
+	return http.StatusOK, user, nil
 }

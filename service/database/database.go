@@ -41,13 +41,16 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	LoginUser(string) (string, string, error)
+	LoginUser(string) (int, User, error)
+	VerifyToken(string) error
+	GetUserProfile(string) (*User, error)
 
 	Ping() error
 }
 
 type appdbimpl struct {
-	c *sql.DB
+	c      *sql.DB
+	logger *logrus.Logger
 }
 
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
@@ -73,7 +76,8 @@ func New(db *sql.DB, logger *logrus.Logger) (AppDatabase, error) {
 	}
 
 	return &appdbimpl{
-		c: db,
+		c:      db,
+		logger: logger,
 	}, nil
 }
 

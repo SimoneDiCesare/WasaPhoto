@@ -21,8 +21,11 @@ const (
 		"token TEXT," +
 		"PRIMARY KEY (uid)" +
 		");"
-	CreateNewUser  = "INSERT INTO users (uid, username, biography, token) VALUES ($1, $2, \"\", $3);"
-	ChangeUsername = "UPDATE users SET username = $1 WHERE uid = $2;"
+	CreateNewUser       = "INSERT INTO users (uid, username, biography, token) VALUES ($1, $2, \"\", $3);"
+	ChangeUsername      = "UPDATE users SET username = $1 WHERE uid = $2;"
+	GetUserFromUsername = "SELECT * FROM users WHERE username = $1;"
+	GetUserFromUid      = "SELECT * FROM users WHERE uid = $1;"
+	GetToken            = "SELECT token FROM users WHERE token = $1;"
 	// TODO: delete profile picture from external source
 	//	Implement db.Begin(), tx.Rollback/Commit() logic
 	DeleteUser = "DELETE FROM users WHERE uid = $1;" +
