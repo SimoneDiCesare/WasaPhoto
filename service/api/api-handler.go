@@ -9,10 +9,59 @@ func (rt *_router) Handler() http.Handler {
 	// Register routes
 	rt.router.GET("/", rt.getHelloWorld)
 	rt.router.GET("/context", rt.wrap(rt.getContextReply))
-	rt.router.POST("/session", rt.postUserSession)
-	rt.router.GET("/users/:uid/profile", rt.authWrap(rt.getUserProfile))
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
-
+	// Session
+	rt.router.POST("/session", rt.postUserSession)
+	// User
+	//TODO: Change getUserProfile on users/uid to a 301 redirect
+	//		PUT request on :uid for changeUsername
+	//		DELETE request on :uid
+	//		update getUserProfile
+	rt.router.GET("/users/:uid", rt.authUidWrap(rt.getUserProfile))
+	rt.router.PUT("/users/:uid", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.DELETE("/users/:uid", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/users/:uid/profile", rt.authWrap(rt.getUserProfile))
+	// Follows
+	//TODO: GET follows list
+	//		POST to add follow for uid/2
+	//		DELETE to remove follow for uid/2
+	//		GET follower list
+	//		POST to add follower for uid/2
+	rt.router.GET("/users/:uid/follows", rt.authWrap(rt.getHelloWorld))
+	rt.router.POST("/users/:uid/follows/:uid2", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.DELETE("/users/:uid/follows/:uid2", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/users/:uid/follower", rt.authWrap(rt.getHelloWorld))
+	rt.router.POST("/users/:uid/follower/:uid2", rt.authWrap(rt.getHelloWorld))
+	// Privacy
+	//TODO: Get uid bans
+	//		POST to add ban for uid/2
+	//		DELETE to remove ban for uid/2
+	rt.router.GET("/users/:uid/bans", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.POST("/users/:uid/bans/:uid2", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.DELETE("/users/:uid/bans/:uid2", rt.authUidWrap(rt.getHelloWorld))
+	// Post
+	//TODO: POST create post for uid
+	//		GET post infos
+	//		DELETE post for uid
+	//		POST create comment in pid for uid
+	//		GET comments of pid
+	//		GET comment of uid on pid
+	//		DELETE comment of uid on pid
+	//		GET post's uid
+	//		POST add like to pid from uid
+	//		GET likes of pid
+	//		DELETE like of uid on pid
+	rt.router.POST("/posts", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/posts/:pid", rt.authWrap(rt.getHelloWorld))
+	rt.router.DELETE("/posts/:pid", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.POST("/posts/:pid/comments", rt.authWrap(rt.getHelloWorld))
+	rt.router.GET("/posts/:pid/comments", rt.authWrap(rt.getHelloWorld))
+	rt.router.GET("/posts/:pid/comments/:cid", rt.authWrap(rt.getHelloWorld))
+	rt.router.DELETE("/posts/:pid/comments/:cid", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/posts/:pid/owner", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.POST("/posts/:pid/likes", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/posts/:pid/likes", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.DELETE("/posts/:pid/likes/:uid", rt.authUidWrap(rt.getHelloWorld))
 	return rt.router
 }

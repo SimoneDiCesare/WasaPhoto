@@ -44,6 +44,7 @@ type AppDatabase interface {
 	LoginUser(string) (int, User, error)
 	VerifyToken(string) error
 	GetUserProfile(string) (*User, error)
+	VerifyUidToken(uid string, token string) error
 
 	Ping() error
 }
