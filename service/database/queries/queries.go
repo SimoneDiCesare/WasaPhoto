@@ -26,6 +26,7 @@ const (
 	GetUserFromUsername = "SELECT * FROM users WHERE username = $1;"
 	GetUserFromUid      = "SELECT * FROM users WHERE uid = $1;"
 	GetToken            = "SELECT token FROM users WHERE token = $1;"
+	GetUserPosts        = "SELECT * FROM posts WHERE posts.uid = $1;"
 	// TODO: delete profile picture from external source
 	//	Implement db.Begin(), tx.Rollback/Commit() logic
 	DeleteUser = "DELETE FROM users WHERE uid = $1;" +

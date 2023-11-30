@@ -7,11 +7,58 @@ import (
 	"github.com/SimoneDiCesare/WasaPhoto/service/database/queries"
 )
 
-func (db *appdbimpl) GetUserProfile(uid string) (*User, error) {
+func (db *appdbimpl) GetFollowerCount(uid string) (int, error) {
+	var count int
+	err := db.c.QueryRow(queries.GetFollowerCount, uid).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (db *appdbimpl) GetFollowsCount(uid string) (int, error) {
+	var count int
+	err := db.c.QueryRow(queries.GetFollowsCount, uid).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (db *appdbimpl) GetUserProfile(uid string) (*UserProfile, error) {
 	var user User
-	err := db.c.QueryRow(queries.GetUserFromUid, uid).Scan(&user.Uid, &user.Username, &user.Biography, &user.Token)
-	if err == sql.ErrNoRows {
+	getUserError := db.c.QueryRow(queries.GetUserFromUid, uid).Scan(&user.Uid, &user.Username, &user.Biography, &user.Token)
+	if getUserError == sql.ErrNoRows {
 		return nil, errors.New("No user found")
 	}
-	return &user, nil
+	var posts []Post
+	rows, getUserPostsError := db.c.Query(queries.GetUserPosts, uid)
+	if getUserPostsError != nil {
+		return nil, errors.New("Error retrieving posts")
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var post Post
+		if err := rows.Scan(&post.Pid, &post.Uid, &post.Caption, &post.CreatedAt); err != nil {
+			return nil, err
+		}
+		post.Image = "/posts/" + post.Pid + "/image.png"
+		posts = append(posts, post)
+	}
+	profileImage := "/users/" + uid + "/image.png"
+	follower, getCountError := db.GetFollowerCount(uid)
+	if getCountError != nil {
+		return nil, getCountError
+	}
+	follows, getCountError := db.GetFollowsCount(uid)
+	if getCountError != nil {
+		return nil, getCountError
+	}
+	return &UserProfile{
+		User:         user,
+		Posts:        posts,
+		ProfileImage: profileImage,
+		Follower:     follower,
+		Follows:      follows,
+	}, nil
 }

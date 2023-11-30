@@ -15,12 +15,10 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/session", rt.postUserSession)
 	// User
 	//TODO: Change getUserProfile on users/uid to a 301 redirect
-	//		PUT request on :uid for changeUsername
 	//		DELETE request on :uid
-	//		update getUserProfile
 	rt.router.GET("/users/:uid", rt.authUidWrap(rt.getUserProfile))
-	rt.router.PUT("/users/:uid", rt.authUidWrap(rt.getHelloWorld))
-	rt.router.DELETE("/users/:uid", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.PUT("/users/:uid", rt.authUidWrap(rt.changeUserName))
+	rt.router.DELETE("/users/:uid", rt.authUidWrap(rt.deleteUser))
 	rt.router.GET("/users/:uid/profile", rt.authWrap(rt.getUserProfile))
 	// Follows
 	//TODO: GET follows list

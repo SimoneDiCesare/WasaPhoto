@@ -43,8 +43,10 @@ import (
 type AppDatabase interface {
 	LoginUser(string) (int, User, error)
 	VerifyToken(string) error
-	GetUserProfile(string) (*User, error)
+	GetUserProfile(string) (*UserProfile, error)
 	VerifyUidToken(uid string, token string) error
+	ChangeUserName(username string, uid string) error
+	DeleteUser(uid string) error
 
 	Ping() error
 }
