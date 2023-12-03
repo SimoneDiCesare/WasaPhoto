@@ -47,6 +47,10 @@ type AppDatabase interface {
 	VerifyUidToken(uid string, token string) error
 	ChangeUserName(username string, uid string) error
 	DeleteUser(uid string) error
+	GetFollows(uid string) ([]SimpleUserProfile, error)
+	FollowUser(uid1 string, uid2 string) error
+	UnfollowUser(uid1 string, uid2 string) error
+	GetFollowers(uid string) ([]SimpleUserProfile, error)
 
 	Ping() error
 }

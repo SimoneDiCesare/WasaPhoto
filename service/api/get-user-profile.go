@@ -28,3 +28,9 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		http.Error(w, "Error encoding response", http.StatusInternalServerError)
 	}
 }
+
+func (rt *_router) redirectoToUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	url := "/users/" + ps.ByName("uid") + "/profile"
+	rt.baseLogger.Infof("Redirecting request to %s", url)
+	http.Redirect(w, r, url, http.StatusMovedPermanently)
+}

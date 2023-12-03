@@ -72,8 +72,8 @@ const (
 		"FOREIGN KEY (uid1) REFERENCES users(uid)," +
 		"FOREIGN KEY (uid2) REFERENCES users(uid)" +
 		");"
-	GetFollowers     = "SELECT users.* FROM users  JOIN follows ON users.uid = follows.uid1 WHERE follows.uid2 = ?;"
-	GetFollows       = "SELECT users.* FROM users JOIN follows ON users.uid = follows.uid2 WHERE follows.uid1 = ?;"
+	GetFollowers     = "SELECT users.uid, users.username FROM users JOIN follows ON users.uid = follows.uid1 WHERE follows.uid2 = ?;"
+	GetFollows       = "SELECT users.uid, users.username FROM users JOIN follows ON users.uid = follows.uid2 WHERE follows.uid1 = ?;"
 	IsFollowing      = "SELECT * FROM follows WHERE uid1 = $1 AND uid2 = $2;"
 	IsFollowedBy     = "SELECT * FROM follows WHERE uid1 = $2 AND uid2 = $1;"
 	FollowUser       = "INSERT INTO follows (uid1, uid2) VALUES ($1, $2);"

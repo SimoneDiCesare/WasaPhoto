@@ -191,7 +191,7 @@ paths:
       description: |-
         Retrieve the list of the followed users by uid, with their personal name
         and uid.
-      operationId: getUserFollows
+      operationId: getFollows
       security:
         - bearerAuth: []
       responses:
@@ -257,7 +257,7 @@ paths:
       description: |-
         Retrieve the list of the uid's follower, with their personal name
         and uid.
-      operationId: getUserFollers
+      operationId: getUserFollowers
       security:
         - bearerAuth: []
       responses:
@@ -267,28 +267,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Users'
-        '404':
-          $ref: '#/components/responses/UserNotFound'
-  /users/{uid}/follower/{uid2}:
-    parameters:
-      - $ref: '#/components/parameters/uid'
-      - $ref: '#/components/parameters/uid2'
-    post:
-      tags:
-        - Follow
-      summary: Adds an user to the follower of uid.
-      description: |-
-        Adds an user to the follower of uid.
-      operationId: getFollower
-      security:
-        - bearerAuth: []
-      responses:
-        '201':
-          description: User followed.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericRequestContent'
         '404':
           $ref: '#/components/responses/UserNotFound'
   /users/{uid}/bans:

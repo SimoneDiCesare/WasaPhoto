@@ -17,6 +17,12 @@ type UserProfile struct {
 	Follows      int    `json:"follows"`
 }
 
+type SimpleUserProfile struct {
+	Uid          string `json:"uid"`
+	Username     string `json:"username"`
+	ProfileImage string `json:"profileImage"`
+}
+
 type Post struct {
 	Pid       string    `json:"pid"`
 	Uid       string    `json:"uid"`

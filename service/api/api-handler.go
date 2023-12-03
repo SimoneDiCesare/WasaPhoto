@@ -14,23 +14,15 @@ func (rt *_router) Handler() http.Handler {
 	// Session
 	rt.router.POST("/session", rt.postUserSession)
 	// User
-	//TODO: Change getUserProfile on users/uid to a 301 redirect
-	//		DELETE request on :uid
-	rt.router.GET("/users/:uid", rt.authUidWrap(rt.getUserProfile))
+	rt.router.GET("/users/:uid", rt.authWrap(rt.redirectoToUserProfile))
 	rt.router.PUT("/users/:uid", rt.authUidWrap(rt.changeUserName))
 	rt.router.DELETE("/users/:uid", rt.authUidWrap(rt.deleteUser))
 	rt.router.GET("/users/:uid/profile", rt.authWrap(rt.getUserProfile))
 	// Follows
-	//TODO: GET follows list
-	//		POST to add follow for uid/2
-	//		DELETE to remove follow for uid/2
-	//		GET follower list
-	//		POST to add follower for uid/2
-	rt.router.GET("/users/:uid/follows", rt.authWrap(rt.getHelloWorld))
-	rt.router.POST("/users/:uid/follows/:uid2", rt.authUidWrap(rt.getHelloWorld))
-	rt.router.DELETE("/users/:uid/follows/:uid2", rt.authUidWrap(rt.getHelloWorld))
-	rt.router.GET("/users/:uid/follower", rt.authWrap(rt.getHelloWorld))
-	rt.router.POST("/users/:uid/follower/:uid2", rt.authWrap(rt.getHelloWorld))
+	rt.router.GET("/users/:uid/follows", rt.authWrap(rt.getFollows))
+	rt.router.POST("/users/:uid/follows/:uid2", rt.authUidWrap(rt.followUser))
+	rt.router.DELETE("/users/:uid/follows/:uid2", rt.authUidWrap(rt.unfollowUser))
+	rt.router.GET("/users/:uid/follower", rt.authWrap(rt.getFollowers))
 	// Privacy
 	//TODO: Get uid bans
 	//		POST to add ban for uid/2
