@@ -103,6 +103,7 @@ const (
 		"WHERE follows.uid1 = ?;"
 	// TODO: $1 can still follow $2 if it bans $2?
 	BanUser = "INSERT INTO bans (bans.uid1, bans.uid2) VALUES ($1, $2);" +
-		"DELETE FROM follows WHERE follows.uid1 = $2 AND follows.uid2 = $1"
+		"DELETE FROM follows WHERE follows.uid1 = $2 AND follows.uid2 = $1;" +
+		"DELETE FROM follows WHERE follows.uid1 = $1 AND follows.uid2 = $2;"
 	UnbanUser = "DELETE FROM bans WHERE uid1 = $1 AND uid2 = $2;"
 )

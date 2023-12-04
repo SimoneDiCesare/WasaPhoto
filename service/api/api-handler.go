@@ -24,12 +24,9 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/users/:uid/follows/:uid2", rt.authUidWrap(rt.unfollowUser))
 	rt.router.GET("/users/:uid/follower", rt.authWrap(rt.getFollowers))
 	// Privacy
-	//TODO: Get uid bans
-	//		POST to add ban for uid/2
-	//		DELETE to remove ban for uid/2
-	rt.router.GET("/users/:uid/bans", rt.authUidWrap(rt.getHelloWorld))
-	rt.router.POST("/users/:uid/bans/:uid2", rt.authUidWrap(rt.getHelloWorld))
-	rt.router.DELETE("/users/:uid/bans/:uid2", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/users/:uid/bans", rt.authUidWrap(rt.getBans))
+	rt.router.POST("/users/:uid/bans/:uid2", rt.authUidWrap(rt.banUser))
+	rt.router.DELETE("/users/:uid/bans/:uid2", rt.authUidWrap(rt.unbanUser))
 	// Post
 	//TODO: POST create post for uid
 	//		GET post infos

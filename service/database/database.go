@@ -51,6 +51,9 @@ type AppDatabase interface {
 	FollowUser(uid1 string, uid2 string) error
 	UnfollowUser(uid1 string, uid2 string) error
 	GetFollowers(uid string) ([]SimpleUserProfile, error)
+	BanUser(uid1 string, uid2 string) error
+	UnbanUser(uid1 string, uid2 string) error
+	GetBans(uid string) ([]SimpleUserProfile, error)
 
 	Ping() error
 }
