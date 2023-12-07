@@ -25,7 +25,7 @@ func (db *appdbimpl) GetFollowsCount(uid string) (int, error) {
 	return count, nil
 }
 
-func (db *appdbimpl) GetUserProfile(uid string) (*UserProfile, error) {
+func (db *appdbimpl) GetUserProfile(uid string) (_ *UserProfile, err error) {
 	var user User
 	getUserError := db.c.QueryRow(queries.GetUserFromUid, uid).Scan(&user.Uid, &user.Username, &user.Biography, &user.Token)
 	if getUserError == sql.ErrNoRows {
@@ -36,7 +36,12 @@ func (db *appdbimpl) GetUserProfile(uid string) (*UserProfile, error) {
 	if getUserPostsError != nil {
 		return nil, errors.New("Error retrieving posts")
 	}
-	defer rows.Close()
+	defer func() {
+		closeErr := rows.Close()
+		if err == nil {
+			err = closeErr
+		}
+	}()
 	for rows.Next() {
 		var post Post
 		if err := rows.Scan(&post.Pid, &post.Uid, &post.Caption, &post.CreatedAt); err != nil {
