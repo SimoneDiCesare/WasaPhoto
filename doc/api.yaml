@@ -742,8 +742,8 @@ components:
           description: The uri of the image of a post
           type: string
           format: uri
-          example: /posts/{pid}/image.png
-          pattern: '^\/posts\/[a-zA-Z0-9]{15}\/image\.png$'
+          example: /posts/{pid}/image
+          pattern: '^\/posts\/[a-zA-Z0-9]{15}\/image$'
           minLength: 32
           maxLength: 32
     ProfileImageUrl:

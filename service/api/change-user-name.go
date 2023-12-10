@@ -26,7 +26,7 @@ func (rt *_router) changeUserName(w http.ResponseWriter, r *http.Request, ps htt
 		rt.baseLogger.WithError(updateError).Error("Error updating username")
 		http.Error(w, "Error updating username", http.StatusInternalServerError)
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("Username updated!"))
 	if writeError != nil {
 		rt.baseLogger.WithError(writeError).Error("Error writing response")

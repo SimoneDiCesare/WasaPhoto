@@ -34,6 +34,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/SimoneDiCesare/WasaPhoto/service/database/queries"
 	"github.com/sirupsen/logrus"
@@ -102,4 +104,20 @@ func createTable(db *sql.DB, query string, logger *logrus.Logger) error {
 
 func (db *appdbimpl) Ping() error {
 	return db.c.Ping()
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func GetImage(path string) string {
+	if fileExists(path) {
+		return path
+	}
+	if strings.Contains(path, "users") {
+		return "/defaults/profile_default.png"
+	} else {
+		return "/defaults/empty.png"
+	}
 }

@@ -18,6 +18,8 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/users/:uid", rt.authUidWrap(rt.changeUserName))
 	rt.router.DELETE("/users/:uid", rt.authUidWrap(rt.deleteUser))
 	rt.router.GET("/users/:uid/profile", rt.authWrap(rt.getUserProfile))
+	rt.router.GET("/users/:uid/image", rt.authWrap(rt.getUserProfileImage))
+	rt.router.PUT("/users/:uid/image", rt.authUidWrap(rt.changeUserProfileImage))
 	// Follows
 	rt.router.GET("/users/:uid/follows", rt.authWrap(rt.getFollows))
 	rt.router.POST("/users/:uid/follows/:uid2", rt.authUidWrap(rt.followUser))
@@ -31,6 +33,7 @@ func (rt *_router) Handler() http.Handler {
 	//TODO: POST create post for uid
 	//		GET post infos
 	//		DELETE post for uid
+	//		GET post image
 	//		POST create comment in pid for uid
 	//		GET comments of pid
 	//		GET comment of uid on pid
@@ -42,6 +45,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/posts", rt.authUidWrap(rt.getHelloWorld))
 	rt.router.GET("/posts/:pid", rt.authWrap(rt.getHelloWorld))
 	rt.router.DELETE("/posts/:pid", rt.authUidWrap(rt.getHelloWorld))
+	rt.router.GET("/posts/:pid/image", rt.authWrap(rt.getHelloWorld))
 	rt.router.POST("/posts/:pid/comments", rt.authWrap(rt.getHelloWorld))
 	rt.router.GET("/posts/:pid/comments", rt.authWrap(rt.getHelloWorld))
 	rt.router.GET("/posts/:pid/comments/:cid", rt.authWrap(rt.getHelloWorld))

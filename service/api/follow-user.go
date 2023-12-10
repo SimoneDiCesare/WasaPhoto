@@ -13,7 +13,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		rt.baseLogger.WithError(followError).Error("Error while following user")
 		http.Error(w, "Error while following user", http.StatusInternalServerError)
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("User followed!"))
 	if writeError != nil {
 		rt.baseLogger.WithError(writeError).Error("Error while writing response")

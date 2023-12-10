@@ -56,7 +56,7 @@ func (rt *_router) postUserSession(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 	w.WriteHeader(statusCode)
-	w.Header().Set("content-type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	_, writingError := w.Write(content)
 	if writingError != nil {
 		rt.baseLogger.WithError(writingError).Error("Error while writing response")

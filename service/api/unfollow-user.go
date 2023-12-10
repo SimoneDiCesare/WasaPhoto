@@ -13,7 +13,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		rt.baseLogger.WithError(followError).Error("Error while following user")
 		http.Error(w, "Error while following user", http.StatusInternalServerError)
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("User unfollowed!"))
 	if writeError != nil {
 		rt.baseLogger.WithError(writeError).Error("Error while writing response")

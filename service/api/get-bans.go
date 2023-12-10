@@ -16,10 +16,10 @@ func (rt *_router) getBans(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	content, encodingError := json.Marshal(bans)
 	if encodingError != nil {
-		rt.baseLogger.WithError(banError).Error("Error while encoding bans")
+		rt.baseLogger.WithError(encodingError).Error("Error while encoding bans")
 		http.Error(w, "Error while encoding bans", http.StatusInternalServerError)
 	}
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write(content)
 	if writeError != nil {
 		rt.baseLogger.WithError(writeError).Error("Error while writing response")
