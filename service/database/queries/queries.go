@@ -45,6 +45,7 @@ const (
 		"FOREIGN KEY (uid) REFERENCES users(uid)" +
 		");"
 	CreateNewPost = "INSERT INTO posts (pid, uid, caption) VALUES ($1, $2, $3);"
+	GetBasePost   = "SELECT * FROM posts WHERE pid = $1;"
 	// TODO: delete post image from external source
 	//	Implement db.Begin(), tx.Rollback/Commit() logic
 	DeletePost = "DELETE FROM posts WHERE pid = $1 AND uid = $2;" +

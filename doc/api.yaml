@@ -1,3 +1,4 @@
+# TODO: Rewrite completely considering the endpoint written in the back-end.
 openapi: 3.0.3
 info:
   title: WasaPhoto API

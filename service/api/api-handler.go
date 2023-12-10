@@ -30,8 +30,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:uid/bans/:uid2", rt.authUidWrap(rt.banUser))
 	rt.router.DELETE("/users/:uid/bans/:uid2", rt.authUidWrap(rt.unbanUser))
 	// Post
-	//TODO: POST create post for uid
-	//		GET post infos
+	//TODO:
 	//		DELETE post for uid
 	//		GET post image
 	//		POST create comment in pid for uid
@@ -42,8 +41,8 @@ func (rt *_router) Handler() http.Handler {
 	//		POST add like to pid from uid
 	//		GET likes of pid
 	//		DELETE like of uid on pid
-	rt.router.POST("/posts", rt.authUidWrap(rt.getHelloWorld))
-	rt.router.GET("/posts/:pid", rt.authWrap(rt.getHelloWorld))
+	rt.router.POST("/posts", rt.authUidWrap(rt.createPost))
+	rt.router.GET("/posts/:pid", rt.authWrap(rt.getPost))
 	rt.router.DELETE("/posts/:pid", rt.authUidWrap(rt.getHelloWorld))
 	rt.router.GET("/posts/:pid/image", rt.authWrap(rt.getHelloWorld))
 	rt.router.POST("/posts/:pid/comments", rt.authWrap(rt.getHelloWorld))

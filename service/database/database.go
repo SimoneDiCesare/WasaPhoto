@@ -56,6 +56,8 @@ type AppDatabase interface {
 	BanUser(uid1 string, uid2 string) error
 	UnbanUser(uid1 string, uid2 string) error
 	GetBans(uid string) ([]SimpleUserProfile, error)
+	CreatePost(uid string, caption string) (*Post, error)
+	GetPost(pid string) (*Post, error)
 
 	Ping() error
 }
