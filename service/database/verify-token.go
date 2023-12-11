@@ -9,7 +9,7 @@ import (
 
 func (db *appdbimpl) VerifyToken(token string) error {
 	var token_found string
-	err := db.c.QueryRow(queries.GetToken, token).Scan(&token_found)
+	err := db.c.QueryRow(queries.GetUserToken, token).Scan(&token_found)
 	if err == sql.ErrNoRows {
 		return errors.New("Invalid Authorization Token")
 	}

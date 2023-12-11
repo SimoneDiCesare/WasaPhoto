@@ -14,6 +14,7 @@ func (rt *_router) Handler() http.Handler {
 	// Session
 	rt.router.POST("/session", rt.postUserSession)
 	// User
+	rt.router.GET("/users", rt.authWrap(rt.SearchUsers))
 	rt.router.GET("/users/:uid", rt.authWrap(rt.redirectoToUserProfile))
 	rt.router.PUT("/users/:uid", rt.authUidWrap(rt.changeUserName))
 	rt.router.DELETE("/users/:uid", rt.authUidWrap(rt.deleteUser))

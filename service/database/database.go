@@ -43,9 +43,10 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	LoginUser(string) (int, User, error)
-	VerifyToken(string) error
-	GetUserProfile(string) (*UserProfile, error)
+	LoginUser(username string) (int, User, error)
+	VerifyToken(token string) error
+	GetUserProfile(uid string) (*UserProfile, error)
+	SearchUsers(token string, text string) ([]SimpleUserProfile, error)
 	VerifyUidToken(uid string, token string) error
 	ChangeUserName(username string, uid string) error
 	DeleteUser(uid string) error
