@@ -18,9 +18,5 @@ func (db *appdbimpl) DeleteUser(uid string) (err error) {
 		}
 	}()
 	_, err = tx.Exec(queries.DeleteUser, uid)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }

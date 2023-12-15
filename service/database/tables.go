@@ -43,3 +43,8 @@ type Comment struct {
 	Uid     string `json:"uid"`
 	Content string `json:"content"`
 }
+
+type Like struct {
+	Pid string `json:"pid"`
+	Uid string `json:"uid"`
+}

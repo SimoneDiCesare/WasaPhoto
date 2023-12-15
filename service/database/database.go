@@ -63,6 +63,11 @@ type AppDatabase interface {
 	DeletePost(pid string, token string) error
 	CommentPost(comment SimpleComment) error
 	GetPostComments(pid string) ([]Comment, error)
+	GetPostComment(pid string, cid string) (*Comment, error)
+	DeletePostComment(token string, pid string, cid string) error
+	GetPostLikes(pid string) ([]Like, error)
+	LikePost(pid string, token string) error
+	UnlikePost(pid string, token string) error
 
 	Ping() error
 }

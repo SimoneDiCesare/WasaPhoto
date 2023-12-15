@@ -67,6 +67,7 @@ const (
 		");"
 	CreateNewComment = "INSERT INTO comments (cid, pid, uid, content) VALUES ($1, $2, $3, $4);"
 	GetPostComments  = "SELECT * FROM comments WHERE pid = $1;"
+	GetPostComment   = "SELECT * FROM comments WHERE cid = $1 AND pid = $2;"
 	ModifyComment    = "UPDATE comments SET content = $1 WHERE cid = $2 AND pid = $3 AND uid = $4;"
 	RemoveComment    = "DELETE FROM comments WHERE cid = $1 AND pid = $2 AND uid = $3;"
 	// Follow Queries
@@ -95,6 +96,8 @@ const (
 		");"
 	AddLikeToPost    = "INSERT INTO likes (pid, uid) VALUES ($1, $2);"
 	GetNumberOfLikes = "SELECT COUNT(*) FROM likes WHERE pid = $1;"
+	GetPostLikes     = "SELECT * FROM likes WHERE pid = $1;"
+	RemoveLike       = "DELETE FROM likes WHERE pid = $1 AND uid = $2;"
 	// Bans Queries
 	CreateBansTable = "CREATE TABLE IF NOT EXISTS bans (" +
 		"uid1 TEXT CHECK(LENGTH(uid1) = 12)," +

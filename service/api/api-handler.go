@@ -21,12 +21,12 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:uid/profile", rt.authTokenWrap(rt.getUserProfile))
 	rt.router.GET("/users/:uid/image", rt.authTokenWrap(rt.getUserProfileImage))
 	rt.router.PUT("/users/:uid/image", rt.authUidWrap(rt.changeUserProfileImage))
-	// Follows
+	// User Follows and Followers
 	rt.router.GET("/users/:uid/follows", rt.authTokenWrap(rt.getFollows))
 	rt.router.POST("/users/:uid/follows/:uid2", rt.authUidWrap(rt.followUser))
 	rt.router.DELETE("/users/:uid/follows/:uid2", rt.authUidWrap(rt.unfollowUser))
 	rt.router.GET("/users/:uid/follower", rt.authTokenWrap(rt.getFollowers))
-	// Privacy
+	// User Privacy (Bans)
 	rt.router.GET("/users/:uid/bans", rt.authUidWrap(rt.getBans))
 	rt.router.POST("/users/:uid/bans/:uid2", rt.authUidWrap(rt.banUser))
 	rt.router.DELETE("/users/:uid/bans/:uid2", rt.authUidWrap(rt.unbanUser))
@@ -35,20 +35,15 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/posts/:pid", rt.authTokenWrap(rt.getPost))
 	rt.router.DELETE("/posts/:pid", rt.authTokenWrap(rt.deletePost))
 	rt.router.GET("/posts/:pid/image", rt.authTokenWrap(rt.getPostImage))
+	// Post Comments
 	rt.router.GET("/posts/:pid/comments", rt.authTokenWrap(rt.getPostComments))
 	rt.router.POST("/posts/:pid/comments", rt.authTokenWrap(rt.commentPost))
-	//TODO:
-	//		GET comment of uid on pid
-	//		DELETE comment of uid on pid
-	//		GET post's uid
-	//		POST add like to pid from uid
-	//		GET likes of pid
-	//		DELETE like of uid on pid
 	rt.router.GET("/posts/:pid/comments/:cid", rt.authTokenWrap(rt.getPostComment))
-	rt.router.DELETE("/posts/:pid/comments/:cid", rt.authUidWrap(rt.deletePostComment))
-	rt.router.GET("/posts/:pid/owner", rt.authUidWrap(rt.getPostOwner))
+	rt.router.DELETE("/posts/:pid/comments/:cid", rt.authTokenWrap(rt.deletePostComment))
+	// Post Likes
 	rt.router.GET("/posts/:pid/likes", rt.authUidWrap(rt.getPostLikes))
 	rt.router.POST("/posts/:pid/likes", rt.authUidWrap(rt.likePost))
 	rt.router.DELETE("/posts/:pid/likes/:uid", rt.authUidWrap(rt.unlikePost))
+	// TODO: rt.router.GET("/posts/:pid/owner", rt.authUidWrap(rt.getPostOwner))
 	return rt.router
 }
