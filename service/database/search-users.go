@@ -5,8 +5,7 @@ import (
 )
 
 func (db *appdbimpl) SearchUsers(token string, text string) (users []SimpleUserProfile, err error) {
-	var uid string
-	uidError := db.c.QueryRow(queries.GetUseridFromToken, token).Scan(&uid)
+	uid, uidError := db.GetUserIdFromToken(token)
 	if uidError != nil {
 		return nil, uidError
 	}
@@ -27,6 +26,10 @@ func (db *appdbimpl) SearchUsers(token string, text string) (users []SimpleUserP
 		}
 		user.ProfileImage = "/users/" + user.Uid + "/image"
 		users = append(users, user)
+	}
+	rowsErr := rows.Err()
+	if rowsErr != nil {
+		return nil, rowsErr
 	}
 	return users, nil
 }

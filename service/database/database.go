@@ -46,6 +46,7 @@ type AppDatabase interface {
 	LoginUser(username string) (int, User, error)
 	VerifyToken(token string) error
 	GetUserProfile(uid string) (*UserProfile, error)
+	GetUserIdFromToken(token string) (string, error)
 	SearchUsers(token string, text string) ([]SimpleUserProfile, error)
 	VerifyUidToken(uid string, token string) error
 	ChangeUserName(username string, uid string) error
@@ -59,6 +60,9 @@ type AppDatabase interface {
 	GetBans(uid string) ([]SimpleUserProfile, error)
 	CreatePost(uid string, caption string) (*Post, error)
 	GetPost(pid string) (*Post, error)
+	DeletePost(pid string, token string) error
+	CommentPost(comment SimpleComment) error
+	GetPostComments(pid string) ([]Comment, error)
 
 	Ping() error
 }

@@ -25,5 +25,9 @@ func (db *appdbimpl) GetBans(uid string) (bans []SimpleUserProfile, err error) {
 		ban.ProfileImage = "/users/" + ban.Uid + "/image"
 		bans = append(bans, ban)
 	}
+	rowsErr := rows.Err()
+	if rowsErr != nil {
+		return nil, rowsErr
+	}
 	return bans, nil
 }

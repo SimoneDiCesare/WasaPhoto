@@ -8,7 +8,7 @@ import (
 
 // This wrap an handler for authenticated operation only.
 // This are the ones that need only a valid token.
-func (rt *_router) authWrap(fn httprouter.Handle) func(http.ResponseWriter, *http.Request, httprouter.Params) {
+func (rt *_router) authTokenWrap(fn httprouter.Handle) func(http.ResponseWriter, *http.Request, httprouter.Params) {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		token := r.Header.Get("Token")
 		if token == "" {

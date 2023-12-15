@@ -25,5 +25,9 @@ func (db *appdbimpl) GetFollowers(uid string) (followers []SimpleUserProfile, er
 		follower.ProfileImage = "/users/" + follower.Uid + "/image.png"
 		followers = append(followers, follower)
 	}
+	rowsErr := rows.Err()
+	if rowsErr != nil {
+		return nil, rowsErr
+	}
 	return followers, nil
 }

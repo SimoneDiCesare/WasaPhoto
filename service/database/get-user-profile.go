@@ -50,6 +50,10 @@ func (db *appdbimpl) GetUserProfile(uid string) (_ *UserProfile, err error) {
 		post.Image = "/posts/" + post.Pid + "/image"
 		posts = append(posts, post)
 	}
+	rowsErr := rows.Err()
+	if rowsErr != nil {
+		return nil, rowsErr
+	}
 	profileImage := "/users/" + uid + "/image"
 	follower, getCountError := db.GetFollowerCount(uid)
 	if getCountError != nil {

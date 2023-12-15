@@ -31,6 +31,12 @@ type Post struct {
 	Image     string    `json:"image"`
 }
 
+type SimpleComment struct {
+	Pid     string `json:"pid"`
+	Uid     string `json:"uid"`
+	Content string `json:"content"`
+}
+
 type Comment struct {
 	Cid     string `json:"cid"`
 	Pid     string `json:"pid"`
