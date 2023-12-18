@@ -12,6 +12,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	if banError != nil {
 		rt.baseLogger.WithError(banError).Error("Error while banning user")
 		http.Error(w, "Error while banning user", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("User banned!"))

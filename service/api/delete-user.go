@@ -12,6 +12,7 @@ func (rt *_router) deleteUser(w http.ResponseWriter, r *http.Request, ps httprou
 	if deleteError != nil {
 		rt.baseLogger.WithError(deleteError).Error("Error deleting profile")
 		http.Error(w, "Error deleting profile", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("User deleted."))

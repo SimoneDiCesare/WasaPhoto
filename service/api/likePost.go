@@ -13,6 +13,7 @@ func (rt *_router) likePost(w http.ResponseWriter, r *http.Request, ps httproute
 	if likeError != nil {
 		rt.baseLogger.WithError(likeError).Error("Error while liking post")
 		http.Error(w, "Error while liking post", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("Post Liked!"))

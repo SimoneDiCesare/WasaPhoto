@@ -13,11 +13,13 @@ func (rt *_router) getBans(w http.ResponseWriter, r *http.Request, ps httprouter
 	if banError != nil {
 		rt.baseLogger.WithError(banError).Error("Error while banning user")
 		http.Error(w, "Error while banning user", http.StatusInternalServerError)
+		return
 	}
 	content, encodingError := json.Marshal(bans)
 	if encodingError != nil {
 		rt.baseLogger.WithError(encodingError).Error("Error while encoding bans")
 		http.Error(w, "Error while encoding bans", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write(content)

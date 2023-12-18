@@ -14,17 +14,20 @@ func (rt *_router) changeUserName(w http.ResponseWriter, r *http.Request, ps htt
 	if readBodyError != nil {
 		rt.baseLogger.WithError(readBodyError).Error("Error reading body")
 		http.Error(w, "Error reading body", http.StatusInternalServerError)
+		return
 	}
 	var newUserName SessionRequestBody
 	decodingError := json.Unmarshal(body, &newUserName)
 	if decodingError != nil {
 		rt.baseLogger.WithError(decodingError).Error("Error decoding request body")
 		http.Error(w, "Error decoding request body", http.StatusInternalServerError)
+		return
 	}
 	updateError := rt.db.ChangeUserName(newUserName.Username, uid)
 	if updateError != nil {
 		rt.baseLogger.WithError(updateError).Error("Error updating username")
 		http.Error(w, "Error updating username", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("Username updated!"))

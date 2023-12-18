@@ -12,6 +12,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	if banError != nil {
 		rt.baseLogger.WithError(banError).Error("Error while unbanning user")
 		http.Error(w, "Error while unbanning user", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("User unbanned!"))

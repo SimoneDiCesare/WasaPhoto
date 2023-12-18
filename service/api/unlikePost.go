@@ -13,6 +13,7 @@ func (rt *_router) unlikePost(w http.ResponseWriter, r *http.Request, ps httprou
 	if unlikeError != nil {
 		rt.baseLogger.WithError(unlikeError).Error("Error while unliking post")
 		http.Error(w, "Error while unliking post", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	_, writeError := w.Write([]byte("Post Unliked!"))

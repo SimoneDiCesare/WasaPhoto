@@ -13,12 +13,14 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 	if retrieveingError != nil {
 		rt.baseLogger.WithError(retrieveingError).Error("Error getting follows")
 		http.Error(w, "Error getting follows", http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("content", "application/json")
 	content, encodingError := json.Marshal(follows)
 	if encodingError != nil {
 		rt.baseLogger.WithError(encodingError).Error("Error while encoding follows")
 		http.Error(w, "Error while encoding follows", http.StatusInternalServerError)
+		return
 	}
 	_, writeError := w.Write(content)
 	if writeError != nil {
