@@ -25,6 +25,7 @@ users: {uid|username|biography|token}
 	}
 */
 func (rt *_router) postUserSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	rt.baseLogger.Infof("Login User")
 	bodyContent, readingError := io.ReadAll(r.Body)
 	if readingError != nil {
 		rt.baseLogger.WithError(readingError).Error("Error reading request body")
