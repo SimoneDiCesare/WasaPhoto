@@ -12,6 +12,7 @@ import (
 
 func createUser(db *appdbimpl, username string) (user User, err error) {
 	// TODO: Check if the uuid and token are really unique.
+	user.Username = username
 	user.Uid, err = newUserId()
 	if err != nil {
 		return user, err
@@ -54,7 +55,7 @@ func (db *appdbimpl) LoginUser(username string) (int, User, error) {
 	}
 	user := User{
 		Uid:       uid,
-		Username:  dummyUsername,
+		Username:  username,
 		Biography: biography,
 		Token:     token,
 	}
