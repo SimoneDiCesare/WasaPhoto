@@ -13,11 +13,13 @@ func (rt *_router) authTokenWrap(fn httprouter.Handle) func(http.ResponseWriter,
 		token := r.Header.Get("Token")
 		if token == "" {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			rt.baseLogger.Error("Empty Token: Unauthorized Request")
 			return
 		}
 		authError := rt.db.VerifyToken(token)
 		if authError != nil {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			rt.baseLogger.Error(token + ": Unauthorized Request")
 			return
 		}
 		fn(w, r, ps)
