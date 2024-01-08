@@ -3,12 +3,14 @@ export default {
 	data: function() {
 		return {
 			user: JSON.parse(localStorage.getItem('user')) || null,
+			profile_user: null,
 			uid: null,
 			profile_pic: null,
 			is_owner: false,
 			loagind: false,
 			some_data: null,
 			errormsg: null,
+			postCount: 0,
 		}
 	},
 	methods: {
@@ -29,8 +31,22 @@ export default {
     		this.profile_pic = `data:image/png;base64,${base64}`;
 		},
 
+		async loadProfile() {
+			const headers = {
+                'Token': this.user.token,
+            };
+			let request = await this.$axios.get('/users/' + this.uid + '/profile',
+			{
+				headers: headers,
+			});
+			console.log(request.data);
+			this.profile_user = request.data;
+			console.log(this.profile_user);
+		},
+
 		loadPage() {
 			this.uid = this.$route.params.uid;
+			this.loadProfile();
 			this.loadProfilePic();
 			// Load Profile pic
 			let profileUid = this.$route.params.uid;
@@ -54,27 +70,84 @@ export default {
 </script>
 
 <template>
-	<div class="user-profile">
-		<img :src="profile_pic" alt="Profile picture" width="50" height="50">
-    	<h2>{{ user.username }}</h2>
- 	</div>
+<div v-if="profile_user" class="profile-page">
+	<div class="profile-container">
+		<img :src="profile_pic" alt="Profile picture" class="profile-pic">
+		<div class="info-container">
+			<div class="name-container">
+				<h2>{{ profile_user.user.username }}</h2>
+				<button>Change Settings</button>
+			</div>
+			<div class="counts-container">
+				<p class="count">{{ postCount }} Post</p>
+				<p class="count">{{ profile_user.follower }} Followers</p>
+				<p class="count">{{ profile_user.follows }} Follows</p>
+			</div>
+			<div class="bio-container">
+				<p>{{ profile_user.user.bio }}</p>
+			</div>
+		</div>
+	</div>
+	<div class="post-grid">
+	</div>
+</div>
+<div v-else>
+	<h1> Loading Profile </h1>
+</div>
 </template>
 
+
 <style scoped>
-.user-profile {
- display: flex;
- flex-direction: column;
- align-items: center;
- padding: 20px;
- background-color: #f0f0f0;
- border-radius: 5px;
+.profile-page {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.profile-container {
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	grid-template-rows: 200px;
 }
 
 .profile-pic {
- width: 100px;
- height: 100px;
- border-radius: 50%;
- object-fit: cover;
- margin-bottom: 10px;
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	object-fit: cover;
+	margin-right: 50px;
+}
+
+.info-container {
+}
+
+.name-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 20px;
+}
+
+.name-container button {
+	padding: 5px;
+	border: none;
+	text-decoration: none;
+	color: #000000;
+	border-radius: 5px;
+}
+
+.counts-container {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 20px;
+}
+
+.count {
+	color: #333333;
+}
+
+.bio-container {
+	color: #000000
 }
 </style>
