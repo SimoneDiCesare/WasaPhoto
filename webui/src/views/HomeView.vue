@@ -16,9 +16,10 @@ export default {
 </script>
 
 <template>
-    <div class="login-container">
-        <h1 class="page-title">HomePage</h1>
-  </div>
+    <div class="home-container">
+        <div class="posts">
+        </div>
+    </div>
 </template>
 
 <style>

@@ -29,7 +29,7 @@ func (rt *_router) changeUserProfileImage(w http.ResponseWriter, r *http.Request
 			rt.baseLogger.WithError(closeError).Error("Error closing image file")
 		}
 	}()
-	imageDir := "./users/" + uid
+	imageDir := "./.users/" + uid
 	preparingError := os.MkdirAll(imageDir, os.ModePerm)
 	if preparingError != nil {
 		rt.baseLogger.WithError(preparingError).Error("Error preparing image dir")

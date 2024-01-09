@@ -10,8 +10,8 @@ import (
 
 func (rt *_router) getUserProfileImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid := ps.ByName("uid")
-	profileImagePath := database.GetImage("/users/" + uid + "/image.png")
-	imageFile, openError := http.Dir(".").Open(profileImagePath)
+	profileImagePath := database.GetImage("./users/" + uid + "/image.png")
+	imageFile, openError := http.Dir("").Open(profileImagePath)
 	if openError != nil {
 		rt.baseLogger.WithError(openError).Error("Error opening user profile image")
 		http.Error(w, "Error opening user profile image", http.StatusInternalServerError)

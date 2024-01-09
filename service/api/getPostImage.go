@@ -10,8 +10,8 @@ import (
 
 func (rt *_router) getPostImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	pid := ps.ByName("pid")
-	postImagePath := database.GetImage("/posts/" + pid + "/image.png")
-	imageFile, openError := http.Dir(".").Open(postImagePath)
+	postImagePath := database.GetImage("./.posts/" + pid + "/image.png")
+	imageFile, openError := http.Dir("").Open(postImagePath)
 	if openError != nil {
 		rt.baseLogger.WithError(openError).Error("Error opening post image")
 		http.Error(w, "Error opening post image", http.StatusInternalServerError)
