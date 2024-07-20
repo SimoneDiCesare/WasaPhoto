@@ -1,6 +1,0 @@
-./open-npm.sh
-# (here you're inside the NPM container)
-npm run build-embed
-exit
-# (outside the NPM container)
-go build -tags webui ./cmd/webapi/
