@@ -49,8 +49,6 @@ paths:
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "500": {$ref: "#/components/responses/GenericServerError"}
       security: []
-      # security:
-      # - bearerAuth: []
 
 components: 
   responses:
@@ -119,7 +117,6 @@ components:
           uid: {$ref: "#/components/schemas/ResourceId"}
           username: {$ref: "#/components/schemas/Username"}
           token: {$ref: "#/components/schemas/BearerToken"}
-
-
+# Global security scheme, disabled when not necessary.
 security:
-  - UserToken: []
+  - BearerToken: []
