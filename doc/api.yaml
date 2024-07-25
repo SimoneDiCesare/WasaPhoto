@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: WASAPhosto API Specification
+  title: WASAPhoto API Specification
   decription: |
     TODO
   version: "1.0.0"
@@ -49,8 +49,94 @@ paths:
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "500": {$ref: "#/components/responses/GenericServerError"}
       security: []
+  /users/:
+    description: List of all users registered to WASAPhoto.
+    get:
+      tags: ["user"]
+      operationId: searchUsers
+      summary: Search users by username
+      description: |
+        Search users by a part or the entire username.
+      parameters:
+        - name: username
+          in: query
+          description: Text to search.
+          required: true
+          schema: {$ref: "#/components/schemas/Username"}
+      responses:
+        "200": {$ref: "#/components/responses/SearchUserResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}:
+    description: Single user path.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["user"]
+      operationId: getUserProfile
+      summary: Retrieve user's profile data.
+      description: |
+        Get user's profile data, containing:
+        - Username
+        - Follows/Follower count
+        - List of his posts
+      responses:
+        "200":
+          description: Get user's profile data.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UserProfileData"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+    put:
+      tags: ["user"]
+      operationId: setMyUserName
+      description: |
+        Changes the user's username.
+      requestBody:
+        description: The new username.
+        required: true
+        content:
+          text/plain:
+            schema: {$ref: "#/components/schemas/Username"} 
+      responses:
+        "200":
+          description: User username updated.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UserProfileData"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/feeds:
+    description: Feeds for a user.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["user"]
+      operationId: getMyStream
+      summary: Get feeds of logged-in user.
+      description: |
+        Get in reverse chronological order the posts from the user followed by
+        the user requesting the feeds.
+      responses:
+        "200": {$ref: "#/components/responses/FeedsResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+components:
+  parameters:
+    uid:
+      name: uid
+      required: true
+      in: path
+      description: The unique ID of a user.
+      schema: {$ref: "#/components/schemas/ResourceId"}
 
-components: 
   responses:
     GenericBadRequest:
       description: |
@@ -64,6 +150,32 @@ components:
       content:
         text/plain:
           schema: {$ref: "#/components/schemas/GenericError"}
+    BadAuthentication:
+      description: |
+          The request needs a valid authentication,
+          but none (or an invalid one) was given.
+      content:
+        text/plain:
+          schema: {$ref: "#/components/schemas/Error"}
+    BadAuthorization:
+      description: |
+        The authentication provided is not sufficient to
+        provide this action.
+      content:
+        text/plain:
+          schema: {$ref: "#/components/schemas/Error"}
+    SearchUserResult:
+      description: |
+        The search of a username is successfull.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/UserSimpleDataList"}
+    FeedsResult:
+      description: |
+        The feed of a user.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/UserFeedData"}
   
   schemas:
 # Security
@@ -86,7 +198,6 @@ components:
       minLength: 0
       maxLength: 250
       readOnly: true
-    
     ResourceId:
       description: A generic resource 64-bit ID as a base-16 string.
       type: string
@@ -95,7 +206,6 @@ components:
       maxLength: 16
       readOnly: true
       pattern: ^[0-9a-fA-F]{1,16}
-
     Username:
       description: User's personal and unique username.
       type: string
@@ -103,13 +213,51 @@ components:
       pattern: ^[a-z_0-9]{3,16}
       minLength: 3
       maxLength: 16
+    Post:
+      description: A generic Post of a user.
+      type: object
+      properties:
+        id: {$ref: "#/components/schemas/ResourceId"}
+        imageUrl: {$ref: "#/components/schemas/ImageUrl"}
+        author: {$ref: "#/components/schemas/UserSimpleData"}
+        uploadTime: {$ref: "#/components/schemas/DateTime"}
+        likesCount:
+          description: Likes of this post.
+          type: integer
+          minimum: 0
+          max: 1000
+          readOnly: true
+        commentsCount:
+          description: Numer of comments
+          type: integer
+          minimum: 0
+          max: 1000
+          readOnly: true
+    ImageUrl:
+      description: |
+        The url of the image file.
+        Generally this path is in the format of {host}/users/{uid}/posts/{pid}.
+      type: string
+      minLength: 10
+      maxLength: 256
+      readOnly: true
+      example: https://wasaPhoto.com/users/124fa3/posts/1cf340a
+    DateTime:
+      description: |
+        Datetime rapresentation as "YYYY-MM-DD hh:mm:ss".
+        Time format is 24h.
+      type: string
+      format: date-time
+      minLength: 20
+      maxLength: 20
+      readOnly: true
+      example: "2024-03-13 12:30:12"
 # Request datas
     LoginRequest:
       description: User data for login.
       type: object
       properties:
         username: {$ref: "#/components/schemas/Username"}
-
     UserLogin:
       description: Result data at user login
         type: object
@@ -117,6 +265,51 @@ components:
           uid: {$ref: "#/components/schemas/ResourceId"}
           username: {$ref: "#/components/schemas/Username"}
           token: {$ref: "#/components/schemas/BearerToken"}
+    UserSimpleDataList:
+      description: |
+        A list of simple user's data.
+      allOf:
+        - description: Retrieved users info.
+          type: object
+          readOnly: true
+          properties:
+            data:
+              description: List of users data.
+              type: array
+              minItems: 0
+              maxItems: 20
+              items: {$ref: "#/components/schemas/UserSimpleData"}
+    UserFeedData:
+      description: |
+        The feed of a user represented as a list of posts.
+      allOf:
+        - $ref: "#/components/schemas/ListOfPosts"
+    UserSimpleData:
+      description: |
+        A simple rapresentation of a user.
+      type: object
+      properties:
+        uid: {$ref: "#/components/schemas/ResourceId"}
+        username: {$ref: "#/components/schemas/Username"}
+    UserProfileData:
+      description: |
+        Data of a user profile.
+      allOf:
+        - $ref: "#/components/schemas/UserSimpleData"
+        - $ref: "#/components/schemas/ListOfPosts"
+    ListOfPosts:
+      description: |
+        A List of posts.
+      type: object
+      readOnly: true
+      properites:
+        data:
+          description: The list of posts.
+          type: array
+          minItems: 0
+          maxItems: 20
+          items: {$ref: "#/components/schemas/Post"}
+        
 # Global security scheme, disabled when not necessary.
 security:
   - BearerToken: []
