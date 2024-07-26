@@ -11,15 +11,18 @@ servers:
 
 tags:
   - name: auth
-    decription: Auth operations
+    decription: Auth operations.
   - name: user
-    decription: User operations
+    decription: User operations.
   - name: follow
-    decription: Follows/Follower operations
+    decription: Follows/Follower operations.
+  - name: ban
+    description: Banning operations.
   - name: post
-    decription: Post operations
+    decription: Post operations.
 
 paths:
+# Logic operations
   /login:
     post:
       tags: ["auth"]
@@ -49,6 +52,7 @@ paths:
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "500": {$ref: "#/components/responses/GenericServerError"}
       security: []
+# User generic operations
   /users:
     description: List of all users registered to WASAPhoto.
     get:
@@ -111,6 +115,7 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
+# Feeds
   /users/{uid}/feeds:
     description: Feeds for a user.
     parameters:
@@ -128,6 +133,7 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
+# Follow logic
   /users/{uid}/follows:
     description: List of a user follows.
     parameters:
@@ -139,7 +145,7 @@ paths:
       description: |
         Retrieve a list of users followed by this user.
       responses:
-        "200": {"#/components/responses/FollowsListResult"}
+        "200": {"#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "500": {$ref: "#/components/responses/GenericServerError"}
@@ -195,11 +201,6 @@ paths:
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
-        "404":
-          description: The user specified with fid does not exists.
-          content:
-            text/plain:
-              schema: {$ref: "#/components/schemas/Error"}
         "500": {$ref: "#/components/responses/GenericServerError"}
   /users/{uid}/follower:
     description: List of a user followers.
@@ -212,10 +213,81 @@ paths:
       description: |
         Retrieve a list of users following this user.
       responses:
-        "200": {"#/components/responses/FollowsListResult"}
+        "200": {"#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "500": {$ref: "#/components/responses/GenericServerError"}
+# Bans logic
+  /users/{uid}/bans:
+    description: List of a user bans.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["ban"]
+      operationId: getBans
+      summary: List user's bans.
+      description: |
+        Retrieve a list of users banned by this user.
+      responses:
+        "200": {"#/components/responses/BansListResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/bans/{bid}:
+    description: A user followed/to follow by uid.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+      - name: bid
+        in: path
+        required: true
+        description: |
+          Uid of the single user banned/to ban by uid. 
+        schema: {$ref: "#/components/schemas/ResourceId"}
+    put:
+      tags: ["ban"]
+      operationId: banUser
+      summary: Ban a user.
+      description: |
+        Ban a user -> adds it to the collection.
+        As a side effect, the user banned will not be able to search and see 
+        this user profile. Also, the follows are removed between this two users.
+      responses:
+        "200":
+          description: User already banned.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/BanData"}
+        "201":
+          description: User banned.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/BanData"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "404":
+          description: The user specified with bid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/Error"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+    delete:
+      tags: ["ban"]
+      operationId: unbanUser
+      summary: Unban a user.
+      description: |
+        Unban a user -> removes it to the collection.
+        As a side effect, the user unbunned is now able to search and
+        see this user profile, but the follows are not restored.
+      responses:
+        "204":
+          description: User banned.
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+# Generic Components
 components:
   parameters:
     uid:
@@ -258,9 +330,15 @@ components:
       content:
         application/json:
           schema: {$ref: "#/components/schemas/UserSimpleDataList"}
-    FollowsListResult:
+    FollowListResult:
       description: |
         A list of user follow.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/UserSimpleDataList"}
+    BansListResult:
+      description: |
+        A list of user bans.
       content:
         application/json:
           schema: {$ref: "#/components/schemas/UserSimpleDataList"}
@@ -350,11 +428,20 @@ components:
       description: |
         Ids representing user followed and user following.
         followingId := user following
-        followedIf := user followed
+        followedId := user followed
       type: object
       properties:
         followingId: {$ref: "#/components/schemas/ResourceId"}
         followedId: {$ref: "#/components/schemas/ResourceId"}
+    BanData:
+      description: |
+        Ids representing user banned and user banning.
+        banningId := user banning
+        bannedId := user banned
+      type: object
+      properties:
+        banningId: {$ref: "#/components/schemas/ResourceId"}
+        bannedId: {$ref: "#/components/schemas/ResourceId"}
 # Request datas
     LoginRequest:
       description: User data for login.
