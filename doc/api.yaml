@@ -49,7 +49,7 @@ paths:
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "500": {$ref: "#/components/responses/GenericServerError"}
       security: []
-  /users/:
+  /users:
     description: List of all users registered to WASAPhoto.
     get:
       tags: ["user"]
@@ -64,7 +64,7 @@ paths:
           required: true
           schema: {$ref: "#/components/schemas/Username"}
       responses:
-        "200": {$ref: "#/components/responses/SearchUserResult"}
+        "200": {$ref: "#/components/responses/UserListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "500": {$ref: "#/components/responses/GenericServerError"}
@@ -128,6 +128,94 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/follows:
+    description: List of a user follows.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["follow"]
+      operationId: getFollows
+      summary: List user's follows.
+      description: |
+        Retrieve a list of users followed by this user.
+      responses:
+        "200": {"#/components/responses/FollowsListResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/follows/{fid}:
+    description: A user followed/to follow by uid.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+      - name: fid
+        in: path
+        required: true
+        description: |
+          Uid of the single user followed/to follow by uid. 
+        schema: {$ref: "#/components/schemas/ResourceId"}
+    put:
+      tags: ["follow"]
+      operationId: followUser
+      summary: Follow a user.
+      description: |
+        Follow a user -> adds it to the collection.
+        As a side effect, the user followed will have this user in the follower
+        section.
+      responses:
+        "200":
+          description: User already followed.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FollowData"}
+        "201":
+          description: User followed.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FollowData"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "404":
+          description: The user specified with fid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/Error"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+    delete:
+      tags: ["follow"]
+      operationId: unfollowUser
+      summary: Unfollow a user.
+      description: |
+        Unfollow a user -> removes it to the collection.
+        As a side effect, the user unfollowed will have this user removed
+        from his follower collection.
+      responses:
+        "204":
+          description: User unfollowed.
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "404":
+          description: The user specified with fid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/Error"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/follower:
+    description: List of a user followers.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["follow"]
+      operationId: getFollowers
+      summary: List user's followers.
+      description: |
+        Retrieve a list of users following this user.
+      responses:
+        "200": {"#/components/responses/FollowsListResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
 components:
   parameters:
     uid:
@@ -164,9 +252,15 @@ components:
       content:
         text/plain:
           schema: {$ref: "#/components/schemas/Error"}
-    SearchUserResult:
+    UserListResult:
       description: |
         The search of a username is successfull.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/UserSimpleDataList"}
+    FollowsListResult:
+      description: |
+        A list of user follow.
       content:
         application/json:
           schema: {$ref: "#/components/schemas/UserSimpleDataList"}
@@ -252,6 +346,15 @@ components:
       maxLength: 20
       readOnly: true
       example: "2024-03-13 12:30:12"
+    FollowData:
+      description: |
+        Ids representing user followed and user following.
+        followingId := user following
+        followedIf := user followed
+      type: object
+      properties:
+        followingId: {$ref: "#/components/schemas/ResourceId"}
+        followedId: {$ref: "#/components/schemas/ResourceId"}
 # Request datas
     LoginRequest:
       description: User data for login.
