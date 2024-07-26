@@ -145,7 +145,7 @@ paths:
       description: |
         Retrieve a list of users followed by this user.
       responses:
-        "200": {"#/components/responses/FollowListResult"}
+        "200": {$ref: "#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "500": {$ref: "#/components/responses/GenericServerError"}
@@ -185,7 +185,7 @@ paths:
           description: The user specified with fid does not exists.
           content:
             text/plain:
-              schema: {$ref: "#/components/schemas/Error"}
+              schema: {$ref: "#/components/schemas/GenericError"}
         "500": {$ref: "#/components/responses/GenericServerError"}
     delete:
       tags: ["follow"]
@@ -213,7 +213,7 @@ paths:
       description: |
         Retrieve a list of users following this user.
       responses:
-        "200": {"#/components/responses/FollowListResult"}
+        "200": {$ref: "#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "500": {$ref: "#/components/responses/GenericServerError"}
@@ -229,7 +229,7 @@ paths:
       description: |
         Retrieve a list of users banned by this user.
       responses:
-        "200": {"#/components/responses/BansListResult"}
+        "200": {$ref: "#/components/responses/BansListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
@@ -270,7 +270,7 @@ paths:
           description: The user specified with bid does not exists.
           content:
             text/plain:
-              schema: {$ref: "#/components/schemas/Error"}
+              schema: {$ref: "#/components/schemas/GenericError"}
         "500": {$ref: "#/components/responses/GenericServerError"}
     delete:
       tags: ["ban"]
@@ -316,14 +316,14 @@ components:
           but none (or an invalid one) was given.
       content:
         text/plain:
-          schema: {$ref: "#/components/schemas/Error"}
+          schema: {$ref: "#/components/schemas/GenericError"}
     BadAuthorization:
       description: |
         The authentication provided is not sufficient to
         provide this action.
       content:
         text/plain:
-          schema: {$ref: "#/components/schemas/Error"}
+          schema: {$ref: "#/components/schemas/GenericError"}
     UserListResult:
       description: |
         The search of a username is successfull.
@@ -352,17 +352,13 @@ components:
   schemas:
 # Security
     BearerToken:
-      description: |
-        User authentication token, passed via login.
-      type: object
-      properties:
-        token:
-          description: The bearer token used for authentication during requests
-          type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
-          pattern: '^[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_=]+\.[a-zA-Z0-9-_.+/=]+$'
-          minLength: 80 
-          maxLength: 80
+      description: The bearer token used for authentication.
+      type: string
+      example: "123e4567-e89b-12d3-a456-426614174000"
+      minLength: 36
+      maxLength: 36
+      readOnly: true
+      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 # Generic data
     GenericError:
       description: Generic error description.
@@ -397,13 +393,13 @@ components:
           description: Likes of this post.
           type: integer
           minimum: 0
-          max: 1000
+          maximum: 1000
           readOnly: true
         commentsCount:
           description: Numer of comments
           type: integer
           minimum: 0
-          max: 1000
+          maximum: 1000
           readOnly: true
     ImageUrl:
       description: |
@@ -450,11 +446,11 @@ components:
         username: {$ref: "#/components/schemas/Username"}
     UserLogin:
       description: Result data at user login
-        type: object
-        properties:
-          uid: {$ref: "#/components/schemas/ResourceId"}
-          username: {$ref: "#/components/schemas/Username"}
-          token: {$ref: "#/components/schemas/BearerToken"}
+      type: object
+      properties:
+        uid: {$ref: "#/components/schemas/ResourceId"}
+        username: {$ref: "#/components/schemas/Username"}
+        token: {$ref: "#/components/schemas/BearerToken"}
     UserSimpleDataList:
       description: |
         A list of simple user's data.
@@ -492,13 +488,20 @@ components:
         A List of posts.
       type: object
       readOnly: true
-      properites:
+      properties:
         data:
           description: The list of posts.
           type: array
           minItems: 0
           maxItems: 20
           items: {$ref: "#/components/schemas/Post"}
+# Security
+  securitySchemes:
+    BearerToken:
+      description: |
+        User token used for authentication.
+      type: http
+      scheme: bearer
         
 # Global security scheme, disabled when not necessary.
 security:
