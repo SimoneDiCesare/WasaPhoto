@@ -2,7 +2,9 @@ openapi: 3.0.3
 info:
   title: WASAPhoto API Specification
   decription: |
-    TODO
+    Keep in touch with your friends by sharing photos of special moments,
+    thanks to WASAPhoto! You can upload your photos directly from your PC,
+    and they will be visible to everyone following you.
   version: "1.0.0"
 
 servers:
@@ -24,6 +26,7 @@ tags:
 paths:
 # Logic operations
   /login:
+    description: Endpoint for login/register operations.
     post:
       tags: ["auth"]
       summary: Logs in operation
@@ -110,7 +113,7 @@ paths:
           description: User username updated.
           content:
             application/json:
-              schema: {$ref: "#/components/schemas/UserProfileData"}
+              schema: {$ref: "#/components/schemas/UserSimpleData"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
@@ -148,17 +151,13 @@ paths:
         "200": {$ref: "#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
   /users/{uid}/follows/{fid}:
     description: A user followed/to follow by uid.
     parameters:
       - $ref: "#/components/parameters/uid"
-      - name: fid
-        in: path
-        required: true
-        description: |
-          Uid of the single user followed/to follow by uid. 
-        schema: {$ref: "#/components/schemas/ResourceId"}
+      - $ref: "#/components/parameters/fid"
     put:
       tags: ["follow"]
       operationId: followUser
@@ -216,6 +215,7 @@ paths:
         "200": {$ref: "#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
 # Bans logic
   /users/{uid}/bans:
@@ -238,12 +238,7 @@ paths:
     description: A user followed/to follow by uid.
     parameters:
       - $ref: "#/components/parameters/uid"
-      - name: bid
-        in: path
-        required: true
-        description: |
-          Uid of the single user banned/to ban by uid. 
-        schema: {$ref: "#/components/schemas/ResourceId"}
+      - $ref: "#/components/parameters/bid"
     put:
       tags: ["ban"]
       operationId: banUser
@@ -287,6 +282,213 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
+# User's post dedicated endpoints.
+  /users/{uid}/posts:
+    description: Post collection of a user.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["post"]
+      operationId: getUserPosts
+      summary: Retrieve User posts.
+      description: |
+        Obtain the list of posts published by the uid user.
+
+        This operation is not permitted from user banned by the uid user.
+      responses:
+        "200": {$ref: "#/components/responses/SimplePostsResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/posts/{pid}:
+    description: Post of a user.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+      - $ref: "#/components/parameters/pid"
+    get:
+      tags: ["post"]
+      operationId: getUserPost
+      summary: Retrieve User's post data.
+      description: |
+        Obtain the complete data of a user's post.
+
+        This operation is not permitted from user banned by the uid user.
+      responses:
+        "200": {$ref: "#/components/responses/PostsListResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+# Collection of Posts logic
+  /posts:
+    description: List of all Posts in WasaPhoto.
+    post:
+      tags: ["post"]
+      operationId: uploadPhoto
+      summary: Upload photo.
+      description: |
+        Create a new post from a user uploading a photo.
+      requestBody:
+        description: The binary file of image to upload as post.
+        content:
+          image/*:
+            schema:
+# https://swagger.io/docs/specification/data-models/data-types/#file
+              description: Photo binary file.
+              type: string
+              minLength: 1
+              maxLength: 20971520 # 20MB
+              format: binaryù
+      responses:
+        "201":
+          description: |
+            The image was uploaded and the post was created.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/SimplePost"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /posts/{pid}:
+    description: A single post identified by pid.
+    parameters:
+      - $ref: "#/components/parameters/pid"
+    delete:
+      tags: ["post"]
+      operationId: deletePhoto
+      summary: Delete a post
+      description: |
+        Delete an existing post.
+        The only user that can delete the post is the one who created it.
+      responses:
+        "204":
+          description: |
+            The post was deleted. (Or si not existing).
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /posts/{pid}/likes/{uid}:
+    parameters:
+      - $ref: "#/components/parameters/pid"
+      - $ref: "#/components/parameters/uid"
+    put:
+      tags: ["post"]
+      operationId: likePhoto
+      summary: Like a post.
+      description: |
+        The specified user leave a like to the specified post.
+      responses:
+        "200":
+          description: Post already liked.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Like"}
+        "201":
+          description: Like added to post.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Like"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "404":
+          description: pid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/GenericError"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+    delete:
+      tags: ["post"]
+      operationId: unlikePhoto
+      summary: Remove like from a post.
+      description: |
+        The specified user removes a like previously added to this post.
+      responses:
+        "204":
+          description: Like removed.
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "404":
+          description: pid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/GenericError"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /posts/{pid}/comments:
+    parameters:
+      - $ref: "#/components/parameters/pid"
+    get:
+      tags: ["post"]
+      operationId: getPostComments
+      summary: Get a list of post's comments.
+      description: |
+        List all post's comments in reverse chronological order.
+      responses:
+        "200": {$ref: "#/components/responses/CommentsListResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "404":
+          description: pid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/GenericError"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+    post:
+      tags: ["post"]
+      operationId: commentPhoto
+      summary: Leave a comment to this post.
+      description: |
+        Create a new comment and leave it under this post.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/NewComment"}
+      responses:
+        "201":
+          description: Post commented.
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Comment"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "404":
+          description: pid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/GenericError"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /posts/{pid}/comments/{cid}:
+    parameters:
+      - $ref: "#/components/parameters/pid"
+      - $ref: "#/components/parameters/cid"
+    delete:
+      tags: ["post"]
+      operationId: uncommentPhoto
+      summary: Delete a comment
+      description: |
+        Delete a post's comment.
+        This operation can be performed by the owner of the comment or
+        the owner of the post.
+      responses:
+        "204":
+          description: The comment was deleted.
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "404":
+          description: pid does not exists.
+          content:
+            text/plain:
+              schema: {$ref: "#/components/schemas/GenericError"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+
+      
 # Generic Components
 components:
   parameters:
@@ -295,6 +497,30 @@ components:
       required: true
       in: path
       description: The unique ID of a user.
+      schema: {$ref: "#/components/schemas/ResourceId"}
+    fid:
+      name: fid
+      required: true
+      in: path
+      description: The unique ID of a followed/following user. 
+      schema: {$ref: "#/components/schemas/ResourceId"}
+    bid:
+      name: bid
+      required: true
+      in: path
+      description: The unique ID of a banned/banning user. 
+      schema: {$ref: "#/components/schemas/ResourceId"}
+    pid:
+      name: pid
+      required: true
+      in: path
+      description: The unique ID of a post.
+      schema: {$ref: "#/components/schemas/ResourceId"}
+    cid:
+      name: cid
+      required: true
+      in: path
+      description: The unique ID of a comment.
       schema: {$ref: "#/components/schemas/ResourceId"}
 
   responses:
@@ -348,6 +574,21 @@ components:
       content:
         application/json:
           schema: {$ref: "#/components/schemas/UserFeedData"}
+    SimplePostsResult:
+      description: A list of simple posts.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/SimplePostDataList"}
+    PostsListResult:
+      description: A list of posts.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/PostDataList"}
+    CommentsListResult:
+      description: A list of post's comments.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/CommentDataList"}
   
   schemas:
 # Security
@@ -381,6 +622,14 @@ components:
       pattern: ^[a-z_0-9]{3,16}
       minLength: 3
       maxLength: 16
+    SimplePost:
+      description: |
+        A simple rapresentation of a Post.
+      type: object
+      properties:
+        id: {$ref: "#/components/schemas/ResourceId"}
+        imageUrl: {$ref: "#/components/schemas/ImageUrl"}
+        author: {$ref: "#/components/schemas/UserSimpleData"}
     Post:
       description: A generic Post of a user.
       type: object
@@ -399,8 +648,45 @@ components:
           description: Numer of comments
           type: integer
           minimum: 0
-          maximum: 1000
+          maximum: 20
           readOnly: true
+        comments:
+          description: Post's comments.
+          type: array
+          minItems: 0
+          maxItems: 20
+          items: {$ref: "#/components/schemas/Comment"}
+    Comment:
+      description: A post's comment.
+      type: object
+      properties:
+        id: {$ref: "#/components/schemas/ResourceId"}
+        author: {$ref: "#/components/schemas/UserSimpleData"}
+        post: {$ref: "#/components/schemas/ResourceId"}
+        text:
+          description: Text content of the comment.
+          type: string
+          minimum: 1
+          maximum: 256
+          readOnly: true
+          pattern: ".+"
+    NewComment:
+      description: A new comment to leave under a post.
+      type: object
+      properties:
+        text:
+          description: Text content of the comment.
+          type: string
+          minimum: 1
+          maximum: 256
+          readOnly: true
+          pattern: ".+"
+    Like:
+      description: A post's like
+      type: object
+      properties:
+        uid: {$ref: "#/components/schemas/ResourceId"}
+        pid: {$ref: "#/components/schemas/ResourceId"}
     ImageUrl:
       description: |
         The url of the image file.
@@ -469,7 +755,7 @@ components:
       description: |
         The feed of a user represented as a list of posts.
       allOf:
-        - $ref: "#/components/schemas/ListOfPosts"
+        - $ref: "#/components/schemas/SimplePostDataList"
     UserSimpleData:
       description: |
         A simple rapresentation of a user.
@@ -482,8 +768,19 @@ components:
         Data of a user profile.
       allOf:
         - $ref: "#/components/schemas/UserSimpleData"
-        - $ref: "#/components/schemas/ListOfPosts"
-    ListOfPosts:
+        - $ref: "#/components/schemas/SimplePostDataList"
+    SimplePostDataList:
+      description: A LIst of simple posts.
+      type: object
+      readOnly: true
+      properties:
+        data:
+          description: The list of simple posts.
+          type: array
+          minItems: 0
+          maxItems: 20
+          items: {$ref: "#/components/schemas/SimplePost"}
+    PostDataList:
       description: |
         A List of posts.
       type: object
@@ -495,6 +792,17 @@ components:
           minItems: 0
           maxItems: 20
           items: {$ref: "#/components/schemas/Post"}
+    CommentDataList:
+      description: A list of comments
+      type: object
+      readOnly: true
+      properties:
+        data:
+          description: The list of comments.
+          type: array
+          minItems: 0
+          maxItems: 20
+          items: {$ref: "#/components/schemas/Comment"}
 # Security
   securitySchemes:
     BearerToken:
