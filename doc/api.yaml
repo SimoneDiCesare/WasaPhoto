@@ -591,15 +591,6 @@ components:
           schema: {$ref: "#/components/schemas/CommentDataList"}
   
   schemas:
-# Security
-    BearerToken:
-      description: The bearer token used for authentication.
-      type: string
-      example: "123e4567-e89b-12d3-a456-426614174000"
-      minLength: 36
-      maxLength: 36
-      readOnly: true
-      pattern: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 # Generic data
     GenericError:
       description: Generic error description.
@@ -736,7 +727,7 @@ components:
       properties:
         uid: {$ref: "#/components/schemas/ResourceId"}
         username: {$ref: "#/components/schemas/Username"}
-        token: {$ref: "#/components/schemas/BearerToken"}
+        token: {$ref: "#/components/schemas/ResourceId"}
     UserSimpleDataList:
       description: |
         A list of simple user's data.
@@ -808,6 +799,8 @@ components:
     BearerToken:
       description: |
         User token used for authentication.
+        Hex string base-64 created on login.
+        Unsecure, used only for demostration purpose.
       type: http
       scheme: bearer
         

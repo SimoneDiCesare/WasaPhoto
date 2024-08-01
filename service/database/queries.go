@@ -1,0 +1,66 @@
+package database
+
+var TablesCheck = []struct {
+	TableName   string
+	CreateQuery string
+}{
+	{"users", CreateUsersTalbe},
+	{"posts", CreatePostsTalbe},
+	{"comments", CreateCommentsTable},
+	{"likes", CreateLikesTable},
+	{"follows", CreateFollowsTable},
+	{"bans", CreateBansTable},
+}
+
+const (
+	// DB Creations Queries
+	CreateUsersTalbe = "CREATE TABLE IF NOT EXISTS users (" +
+		"id TEXT CHECK(LENGTH(id) >= 1 AND LENGTH(id) <= 16)," +
+		"username TEXT CHECK(LENGTH(username) >= 3 AND LENGTH(username) <= 16)," +
+		"token TEXT," +
+		"PRIMARY KEY (id)" +
+		");"
+	CreatePostsTalbe = "CREATE TABLE IF NOT EXISTS posts (" +
+		"id TEXT CHECK(LENGTH(id) >= 1 AND LENGTH(id) <= 16)," +
+		"uid TEXT CHECK(LENGTH(uid) >= 1 AND LENGTH(uid) <= 16)," +
+		"createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+		"PRIMARY KEY (id)," +
+		"FOREIGN KEY (uid) REFERENCES users(id)" +
+		");"
+	CreateCommentsTable = "CREATE TABLE IF NOT EXISTS comments (" +
+		"uid TEXT CHECK(LENGTH(uid) >= 1 AND LENGTH(uid) <= 16)," +
+		"pid TEXT CHECK(LENGTH(pid) >= 1 AND LENGTH(pid) <= 16)," +
+		"content TEXT CHECK(LENGTH(content) >= 1 AND LENGTH(content) <= 256)," +
+		"PRIMARY KEY (uid, pid)," +
+		"FOREIGN KEY (uid) REFERENCES users(id)" +
+		"FOREIGN KEY (pid) REFERENCES posts(id)" +
+		");"
+	CreateLikesTable = "CREATE TABLE IF NOT EXISTS likes (" +
+		"uid TEXT CHECK(LENGTH(uid) >= 1 AND LENGTH(uid) <= 16)," +
+		"pid TEXT CHECK(LENGTH(pid) >= 1 AND LENGTH(pid) <= 16)," +
+		"PRIMARY KEY (uid, pid)," +
+		"FOREIGN KEY (uid) REFERENCES users(id)" +
+		"FOREIGN KEY (pid) REFERENCES posts(id)" +
+		");"
+	CreateFollowsTable = "CREATE TABLE IF NOT EXISTS follows (" +
+		"follower TEXT CHECK(LENGTH(follower) >= 1 AND LENGTH(follower) <= 16)," +
+		"followed TEXT CHECK(LENGTH(followed) >= 1 AND LENGTH(followed) <= 16)," +
+		"CHECK(follower != followed)," +
+		"PRIMARY KEY (follower, followed)," +
+		"FOREIGN KEY (follower) REFERENCES users(follower)" +
+		"FOREIGN KEY (followed) REFERENCES posts(followed)" +
+		");"
+	CreateBansTable = "CREATE TABLE IF NOT EXISTS bans (" +
+		"banner TEXT CHECK(LENGTH(banner) >= 1 AND LENGTH(banner) <= 16)," +
+		"banned TEXT CHECK(LENGTH(banned) >= 1 AND LENGTH(banned) <= 16)," +
+		"CHECK(banner != banned)," +
+		"PRIMARY KEY (banner, banned)," +
+		"FOREIGN KEY (banner) REFERENCES users(banner)" +
+		"FOREIGN KEY (banned) REFERENCES posts(banned)" +
+		");"
+	// users Table Queries
+	CreateUser      = "INSERT INTO users (id, username, token) VALUES ($1, $2, $3);"
+	GetUserById     = "SELECT users.id, users.username, users.token FROM users WHERE users.id = $1;"
+	GetUserByName   = "SELECT users.id, users.username, users.token FROM users WHERE users.username = $1;"
+	UpdateUserToken = "UPDATE users SET token = $2 WHERE users.id = $1;"
+)

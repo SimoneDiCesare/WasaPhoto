@@ -34,40 +34,46 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
+	schema "github.com/SimoneDiCesare/WasaPhoto/service/api/schemas"
+	"github.com/sirupsen/logrus"
 )
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
+	LoginUser(string) (*schema.UserLogin, error)
 
 	Ping() error
 }
 
 type appdbimpl struct {
-	c *sql.DB
+	c      *sql.DB
+	logger *logrus.Logger
 }
 
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
 // `db` is required - an error will be returned if `db` is `nil`.
-func New(db *sql.DB) (AppDatabase, error) {
+// Checks the existance of the important tables in the db.
+// If one or more are missing and cannot be created it will return an error.
+func New(db *sql.DB, logger *logrus.Logger) (AppDatabase, error) {
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
-
-	// Check if table exists. If not, the database is empty, and we need to create the structure
+	// Tables checks
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
-	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
+	for _, tableData := range TablesCheck {
+		err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + tableData.TableName + `';`).Scan(&tableName)
+		if errors.Is(err, sql.ErrNoRows) {
+			_, err = db.Exec(tableData.CreateQuery)
+			if err != nil {
+				return nil, fmt.Errorf("error creating database table %s: %w", tableData.TableName, err)
+			}
 		}
 	}
 
 	return &appdbimpl{
-		c: db,
+		c:      db,
+		logger: logger,
 	}, nil
 }
 
