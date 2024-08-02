@@ -15,7 +15,7 @@ import (
 // loadConfiguration and values from flags, environment variable or configuration file will be loaded.
 type WebAPIConfiguration struct {
 	Config struct {
-		Path string `conf:"default:/conf/config.yml"`
+		Path string `conf:"default:./conf/config.yml"`
 	}
 	Web struct {
 		APIHost         string        `conf:"default:0.0.0.0:3000"`
@@ -26,8 +26,9 @@ type WebAPIConfiguration struct {
 	}
 	Debug bool
 	DB    struct {
-		Filename   string `conf:"default:/tmp/decaf.db"`
-		Persistent bool   `conf:"default:true"`
+		Filename     string `conf:"default:/tmp/decaf.db"`
+		Persistent   bool   `conf:"default:true"`
+		CleanOnStart bool   `conf:"default:false"`
 	}
 }
 

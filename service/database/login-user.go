@@ -9,6 +9,17 @@ import (
 	schema "github.com/SimoneDiCesare/WasaPhoto/service/api/schemas"
 )
 
+// Print all Users
+// rows, _ := db.c.Query(GetUsers)
+// for rows.Next() {
+// 	var user schema.UserLogin
+// 	if err := rows.Scan(&user.Uid, &user.Username, &user.Token); err != nil {
+// 		db.logger.Error("Scan Error")
+// 		continue
+// 	}
+// 	db.logger.Infof("User: {%s, %s, %s}", user.Uid, user.Username, user.Token)
+// }
+
 func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 	var user schema.UserLogin
 	user.Username = username
@@ -38,19 +49,19 @@ func (db *appdbimpl) LoginUser(username string) (*schema.UserLogin, error) {
 	var user schema.UserLogin
 	queryError := db.c.QueryRow(GetUserByName, username).Scan(&user.Uid, &user.Username, &user.Token)
 	if queryError == sql.ErrNoRows {
-		db.logger.Info("Creating new user: " + username)
+		db.logger.Debug("Creating new user: " + username)
 		return db.CreateUser(username)
 	}
 	// Update token on login
 	tmpToken := fmt.Sprintf("%x", rand.Uint64())
-	_, queryError = db.c.Exec(UpdateUserToken, user.Uid, tmpToken)
-	if queryError != nil {
+	res, queryError := db.c.Exec(UpdateUserToken, tmpToken, user.Uid)
+	affected, _ := res.RowsAffected()
+	if queryError != nil || affected == 0 {
 		// Use old token
-		db.logger.Info("Can't update older token")
-		db.logger.Info(queryError)
+		db.logger.Debugf("Can't update older token: %d, %w", affected, queryError)
 		return &user, nil
 	}
 	user.Token = tmpToken
-	db.logger.Info("User logged in")
+	db.logger.Debug("User logged in")
 	return &user, nil
 }

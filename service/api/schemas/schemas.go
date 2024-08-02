@@ -9,3 +9,8 @@ type UserLogin struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
 }
+
+type SimpleUserData struct {
+	Uid      string `json:"uid"`
+	Username string `json:"username"`
+}

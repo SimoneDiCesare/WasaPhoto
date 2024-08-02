@@ -59,8 +59,12 @@ const (
 		"FOREIGN KEY (banned) REFERENCES posts(banned)" +
 		");"
 	// users Table Queries
-	CreateUser      = "INSERT INTO users (id, username, token) VALUES ($1, $2, $3);"
-	GetUserById     = "SELECT users.id, users.username, users.token FROM users WHERE users.id = $1;"
-	GetUserByName   = "SELECT users.id, users.username, users.token FROM users WHERE users.username = $1;"
-	UpdateUserToken = "UPDATE users SET token = $2 WHERE users.id = $1;"
+	GetUsers          = "SELECT users.id, users.username, users.token FROM users WHERE 1;"
+	CreateUser        = "INSERT INTO users (id, username, token) VALUES ($1, $2, $3);"
+	GetUserById       = "SELECT users.id, users.username, users.token FROM users WHERE users.id = $1;"
+	GetUserByName     = "SELECT users.id, users.username, users.token FROM users WHERE users.username = $1;"
+	GetUidByToken     = "SELECT users.id FROM users WHERE users.token = $1;"
+	UpdateUserToken   = "UPDATE users SET token = $1 WHERE users.id = $2;"
+	UpdateUserName    = "UPDATE users SET username = $1 WHERE users.id = $2;"
+	SearchUsersByName = "SELECT users.id, users.username FROM users WHERE users.id NOT IN (SELECT bans.banner FROM bans WHERE bans.banned = $1) AND users.username LIKE $2 || '%' LIMIT 20;"
 )

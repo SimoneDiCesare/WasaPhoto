@@ -42,8 +42,12 @@ import (
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	LoginUser(string) (*schema.UserLogin, error)
+	SearchUsersByName(string, string) ([]schema.SimpleUserData, error)
+	SearchUidByToken(string) (string, error)
+	ChangeUserName(string, string) error
 
 	Ping() error
+	Clean() error
 }
 
 type appdbimpl struct {
@@ -75,6 +79,16 @@ func New(db *sql.DB, logger *logrus.Logger) (AppDatabase, error) {
 		c:      db,
 		logger: logger,
 	}, nil
+}
+
+func (db *appdbimpl) Clean() error {
+	for _, tableData := range TablesCheck {
+		_, err := db.c.Exec("DELETE FROM " + tableData.TableName + ";")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (db *appdbimpl) Ping() error {

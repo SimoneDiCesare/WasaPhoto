@@ -97,6 +97,14 @@ func run() error {
 		logger.WithError(err).Error("error creating AppDatabase")
 		return fmt.Errorf("creating AppDatabase: %w", err)
 	}
+	if cfg.DB.CleanOnStart {
+		cleanError := db.Clean()
+		if cleanError != nil {
+			logger.WithError(cleanError).Error("Can't clean Database")
+		} else {
+			logger.Info("Cleaned DB")
+		}
+	}
 
 	// Start (main) API server
 	logger.Info("initializing API server")
