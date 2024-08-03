@@ -45,6 +45,10 @@ type AppDatabase interface {
 	SearchUsersByName(string, string) ([]schema.SimpleUserData, error)
 	SearchUidByToken(string) (string, error)
 	ChangeUserName(string, string) error
+	GetFollows(string) ([]schema.SimpleUserData, error)
+	GetFollowers(string) ([]schema.SimpleUserData, error)
+	FollowUser(string, string) error
+	UnfollowUser(string, string) error
 
 	Ping() error
 	Clean() error

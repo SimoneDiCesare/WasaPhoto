@@ -153,7 +153,23 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
-  /users/{uid}/follows/{fid}:
+  /users/{uid}/follower:
+    description: List of a user followers.
+    parameters:
+      - $ref: "#/components/parameters/uid"
+    get:
+      tags: ["follow"]
+      operationId: getFollowers
+      summary: List user's followers.
+      description: |
+        Retrieve a list of users following this user.
+      responses:
+        "200": {$ref: "#/components/responses/FollowListResult"}
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /users/{uid}/follower/{fid}:
     description: A user followed/to follow by uid.
     parameters:
       - $ref: "#/components/parameters/uid"
@@ -197,22 +213,6 @@ paths:
       responses:
         "204":
           description: User unfollowed.
-        "400": {$ref: "#/components/responses/GenericBadRequest"}
-        "401": {$ref: "#/components/responses/BadAuthentication"}
-        "403": {$ref: "#/components/responses/BadAuthorization"}
-        "500": {$ref: "#/components/responses/GenericServerError"}
-  /users/{uid}/follower:
-    description: List of a user followers.
-    parameters:
-      - $ref: "#/components/parameters/uid"
-    get:
-      tags: ["follow"]
-      operationId: getFollowers
-      summary: List user's followers.
-      description: |
-        Retrieve a list of users following this user.
-      responses:
-        "200": {$ref: "#/components/responses/FollowListResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}

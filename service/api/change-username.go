@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
@@ -24,7 +25,11 @@ func (rt *_router) changeUserName(w http.ResponseWriter, r *http.Request, ps htt
 	}
 	username := string(bodyContent[:])
 	updateError := rt.db.ChangeUserName(uid, username)
-	if updateError != nil {
+	if errors.Is(updateError, schema.ErrExistingUsername) {
+		rt.baseLogger.WithError(updateError).Error("Can't update username")
+		http.Error(w, "Can't update username", http.StatusBadRequest)
+		return
+	} else if updateError != nil {
 		rt.baseLogger.WithError(updateError).Error("Can't update username")
 		http.Error(w, "Can't update username", http.StatusInternalServerError)
 		return

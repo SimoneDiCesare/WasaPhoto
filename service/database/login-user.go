@@ -23,13 +23,19 @@ import (
 func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 	var user schema.UserLogin
 	user.Username = username
+	var tmp1, tmp2, tmp3 string
+	queryError := db.c.QueryRow(GetUserByName, username).Scan(&tmp1, &tmp2, &tmp3)
+	if queryError == nil {
+		// Username already existing
+		return nil, schema.ErrExistingUsername
+	}
 	// Generate a valid id for the new user
 	// If on the 10-th tries we can't generate a valid id, an error is returned.
 	triesCount := 0
 	for {
 		user.Uid = fmt.Sprintf("%x", rand.Uint64())
-		queryError := db.c.QueryRow(GetUserById, user.Uid).Scan()
-		if queryError == sql.ErrNoRows {
+		queryError = db.c.QueryRow(GetUserById, user.Uid).Scan()
+		if errors.Is(queryError, sql.ErrNoRows) {
 			break
 		}
 		triesCount++
@@ -38,7 +44,7 @@ func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 		}
 	}
 	user.Token = fmt.Sprintf("%x", rand.Uint64())
-	_, queryError := db.c.Exec(CreateUser, user.Uid, user.Username, user.Token)
+	_, queryError = db.c.Exec(CreateUser, user.Uid, user.Username, user.Token)
 	if queryError != nil {
 		return nil, queryError
 	}

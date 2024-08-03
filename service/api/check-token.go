@@ -13,6 +13,7 @@ func (m *AuthorizationError) Error() string {
 }
 
 // Check if its a valid token -> generic operations like search user
+// returns the uid associated with the token
 func (rt *_router) checkToken(token string) (string, error) {
 	rt.baseLogger.Debugf("Token to verify: %s", token)
 	uid, searchError := rt.db.SearchUidByToken(token)
