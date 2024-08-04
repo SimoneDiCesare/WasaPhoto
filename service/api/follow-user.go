@@ -9,13 +9,24 @@ import (
 )
 
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	_, tokenError := rt.checkToken(r.Header.Get("token"))
+	reqUid, tokenError := rt.checkToken(r.Header.Get("token"))
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return
 	}
 	uid := ps.ByName("uid")
 	fid := ps.ByName("fid")
+	banError := rt.checkBanned(uid, reqUid)
+	if banError != nil {
+		rt.HandleBanError(banError, w)
+		return
+	}
+	if reqUid != fid {
+		// fid is following uid, but the request is not made by fid
+		rt.baseLogger.Error("Invalid follow")
+		http.Error(w, "Invalid follow", http.StatusBadRequest)
+		return
+	}
 	if uid == fid {
 		rt.baseLogger.Error("Can't follow itself")
 		http.Error(w, "Can't follow itself", http.StatusBadRequest)
@@ -68,13 +79,24 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 }
 
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	_, tokenError := rt.checkToken(r.Header.Get("token"))
+	reqUid, tokenError := rt.checkToken(r.Header.Get("token"))
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return
 	}
 	uid := ps.ByName("uid")
 	fid := ps.ByName("fid")
+	banError := rt.checkBanned(uid, reqUid)
+	if banError != nil {
+		rt.HandleBanError(banError, w)
+		return
+	}
+	if reqUid != fid {
+		// fid is unfollowing uid, but the request is not made by fid
+		rt.baseLogger.Error("Invalid unfollow")
+		http.Error(w, "Invalid unfollow", http.StatusBadRequest)
+		return
+	}
 	if uid == fid {
 		rt.baseLogger.Error("Can't unfollow itself")
 		http.Error(w, "Can't unfollow itself", http.StatusBadRequest)

@@ -8,12 +8,17 @@ import (
 )
 
 func (rt *_router) getFollows(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	_, tokenError := rt.checkToken(r.Header.Get("token"))
+	reqUid, tokenError := rt.checkToken(r.Header.Get("token"))
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return
 	}
 	uid := ps.ByName("uid")
+	banError := rt.checkBanned(uid, reqUid)
+	if banError != nil {
+		rt.HandleBanError(banError, w)
+		return
+	}
 	rt.baseLogger.Debugf("Getting follows for %s", uid)
 	follows, getError := rt.db.GetFollows(uid)
 	if getError != nil {

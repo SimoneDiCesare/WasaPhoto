@@ -3,6 +3,8 @@ package schema
 import "errors"
 
 var ErrExistingUsername = errors.New("usernme already exists")
+var ErrNoAuthentication = errors.New("Not Authenticated")
+var ErrNotAuthorized = errors.New("Not Authorized")
 
 type LoginRequestBody struct {
 	Username string `json:"username"`
@@ -22,4 +24,9 @@ type SimpleUserData struct {
 type FollowData struct {
 	FollowingId string `json:"followingId"`
 	FollowedId  string `json:"followedId"`
+}
+
+type BanData struct {
+	BanningId string `json:"banningId"`
+	BannedId  string `json:"bannedId"`
 }

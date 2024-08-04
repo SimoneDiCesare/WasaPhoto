@@ -72,4 +72,8 @@ const (
 	GetFollowers = "SELECT users.id, users.username FROM users INNER JOIN follows ON users.id = follows.follower WHERE follows.followed = $1;"
 	FollowUser   = "INSERT INTO follows (follower, followed) VALUES ($1, $2);"
 	UnfollowUser = "DELETE FROM follows WHERE follows.follower = $1 AND follows.followed = $2;"
+	// ban table query
+	GetBans   = "SELECT users.id, users.username FROM users INNER JOIN bans ON users.id = bans.banned WHERE bans.banner = $1;"
+	BanUser   = "INSERT INTO bans (banner, banned) VALUES ($1, $2);"
+	UnbanUser = "DELETE FROM bans WHERE bans.banner = $1 AND bans.banned = $2;"
 )

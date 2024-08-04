@@ -49,6 +49,9 @@ type AppDatabase interface {
 	GetFollowers(string) ([]schema.SimpleUserData, error)
 	FollowUser(string, string) error
 	UnfollowUser(string, string) error
+	GetBans(string) ([]schema.SimpleUserData, error)
+	BanUser(string, string) error
+	UnbanUser(string, string) error
 
 	Ping() error
 	Clean() error
