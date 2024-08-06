@@ -52,6 +52,8 @@ type AppDatabase interface {
 	GetBans(string) ([]schema.SimpleUserData, error)
 	BanUser(string, string) error
 	UnbanUser(string, string) error
+	CreatePost(string) (string, error)
+	GetSimplePost(string) (*schema.SimplePostData, error)
 
 	Ping() error
 	Clean() error

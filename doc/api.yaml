@@ -618,14 +618,15 @@ components:
         A simple rapresentation of a Post.
       type: object
       properties:
-        id: {$ref: "#/components/schemas/ResourceId"}
+        pid: {$ref: "#/components/schemas/ResourceId"}
         imageUrl: {$ref: "#/components/schemas/ImageUrl"}
+        uploadTime: {$ref: "#/components/schemas/DateTime"}
         author: {$ref: "#/components/schemas/UserSimpleData"}
     Post:
       description: A generic Post of a user.
       type: object
       properties:
-        id: {$ref: "#/components/schemas/ResourceId"}
+        pid: {$ref: "#/components/schemas/ResourceId"}
         imageUrl: {$ref: "#/components/schemas/ImageUrl"}
         author: {$ref: "#/components/schemas/UserSimpleData"}
         uploadTime: {$ref: "#/components/schemas/DateTime"}
@@ -696,7 +697,7 @@ components:
       minLength: 20
       maxLength: 20
       readOnly: true
-      example: "2024-03-13 12:30:12"
+      example: "2024-03-13T12:30:12"
     FollowData:
       description: |
         Ids representing user followed and user following.

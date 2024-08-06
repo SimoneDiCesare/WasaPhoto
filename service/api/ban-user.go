@@ -63,7 +63,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 	}
 	// Create ban and return
-	banError := rt.db.BanUser(uid, bid)
+	banError = rt.db.BanUser(uid, bid)
 	if banError != nil {
 		rt.baseLogger.WithError(banError).Error("Error Banning user")
 		http.Error(w, "Error Banning user", http.StatusInternalServerError)

@@ -18,12 +18,8 @@ import (
  * TODO: Missing Endpoints:
  * /users/:uid GET (getUserProfile)
  * /users/:uid/feeds GET (getMyStream)
- * /users/:uid/bans GET (getBans)
- * /users/:uid/bans/:bid PUT (banUser)
- * /users/:uid/bans/:bid DELETE (unbanUser)
  * /users/:uid/posts GET (getUserPosts)
  * /users/:uid/posts/:pid GET (getUserPost)
- * /posts POST (uploadPhoto)
  * /posts/:pid DELETE (deletPhoto)
  * /posts/:pid/likes/:uid PUT (likePhoto)
  * /posts/:pid/likes/:uid DELETE (unlikePhoto)
@@ -51,11 +47,12 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:uid/bans", rt.getBans)
 	rt.router.PUT("/users/:uid/bans/:bid", rt.banUser)
 	rt.router.DELETE("/users/:uid/bans/:bid", rt.unbanUser)
+	// Post operations
+	rt.router.PUT("/posts", rt.uploadPhoto)
 
 	// ==== TODO: Remove or Check importance ====
 	rt.router.GET("/", rt.getHelloWorld)
 	rt.router.GET("/context", rt.wrap(rt.getContextReply))
-
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 

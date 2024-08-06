@@ -30,3 +30,10 @@ type BanData struct {
 	BanningId string `json:"banningId"`
 	BannedId  string `json:"bannedId"`
 }
+
+type SimplePostData struct {
+	Pid       string         `json:"pid"`
+	ImageUrl  string         `json:"imageUrl"`
+	CreatedAt string         `json:"uploadTime"`
+	Author    SimpleUserData `json:"author"`
+}
