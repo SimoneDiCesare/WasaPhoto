@@ -53,7 +53,8 @@ type AppDatabase interface {
 	BanUser(string, string) error
 	UnbanUser(string, string) error
 	CreatePost(string) (string, error)
-	GetSimplePost(string) (*schema.SimplePostData, error)
+	GetSimplePost(string, string) (*schema.SimplePostData, error)
+	GetMyStream(string) ([]schema.SimplePostData, error)
 
 	Ping() error
 	Clean() error

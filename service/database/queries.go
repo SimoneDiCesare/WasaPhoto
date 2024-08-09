@@ -67,6 +67,12 @@ const (
 	UpdateUserToken   = "UPDATE users SET token = $1 WHERE users.id = $2;"
 	UpdateUserName    = "UPDATE users SET username = $1 WHERE users.id = $2;"
 	SearchUsersByName = "SELECT users.id, users.username FROM users WHERE users.id NOT IN (SELECT bans.banner FROM bans WHERE bans.banned = $1) AND users.username LIKE $2 || '%' LIMIT 20;"
+	/*
+		 We need a list of SimplePost
+			Implemented as GetSimplePost with a IN clause for users.id on follows.follower for followed.$1
+			TODO: Implements order by for reverse chronological order
+	*/
+	GetFeeds = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE users.id IN (SELECT follows.follower FROM follows WHERE follows.followed = $1);"
 	// follow table query
 	GetFollows   = "SELECT users.id, users.username FROM users INNER JOIN follows ON users.id = follows.followed WHERE follows.follower = $1;"
 	GetFollowers = "SELECT users.id, users.username FROM users INNER JOIN follows ON users.id = follows.follower WHERE follows.followed = $1;"
@@ -79,5 +85,5 @@ const (
 	// post table query
 	CreatePost      = "INSERT INTO posts (id, uid) VALUES ($1, $2);"
 	GetPostIdFromId = "SELECT posts.id FROM posts WHERE posts.id = $1;"
-	GetSimplePost   = "SELECT posts.id, posts.uid, posts.createdAt FROM posts WHERE posts.id = $1;"
+	GetSimplePost   = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.id = $1;"
 )

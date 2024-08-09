@@ -17,7 +17,6 @@ import (
 /**
  * TODO: Missing Endpoints:
  * /users/:uid GET (getUserProfile)
- * /users/:uid/feeds GET (getMyStream)
  * /users/:uid/posts GET (getUserPosts)
  * /users/:uid/posts/:pid GET (getUserPost)
  * /posts/:pid DELETE (deletPhoto)
@@ -38,6 +37,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/login", rt.login)
 	rt.router.GET("/users", rt.searchUsers)
 	rt.router.PUT("/users/:uid", rt.changeUserName)
+	rt.router.GET("/users/:uid/feeds", rt.getMyStream)
 	// Follow operations
 	rt.router.GET("/users/:uid/follows", rt.getFollows)
 	rt.router.GET("/users/:uid/followers", rt.getFollowers)

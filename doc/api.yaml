@@ -681,13 +681,13 @@ components:
         pid: {$ref: "#/components/schemas/ResourceId"}
     ImageUrl:
       description: |
-        The url of the image file.
-        Generally this path is in the format of {host}/users/{uid}/posts/{pid}.
+        The path the image file.
+        Generally this path is in the format of users/{uid}/posts/{pid}.
       type: string
       minLength: 10
       maxLength: 256
       readOnly: true
-      example: https://wasaPhoto.com/users/124fa3/posts/1cf340a
+      example: users/124fa3/posts/1cf340a
     DateTime:
       description: |
         Datetime rapresentation as "YYYY-MM-DD hh:mm:ss".
