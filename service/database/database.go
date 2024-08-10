@@ -55,6 +55,10 @@ type AppDatabase interface {
 	CreatePost(string) (string, error)
 	GetSimplePost(string, string) (*schema.SimplePostData, error)
 	GetMyStream(string) ([]schema.SimplePostData, error)
+	GetUserProfile(string) (*schema.UserProfileData, error)
+	GetUserPosts(string) ([]schema.SimplePostData, error)
+	GetUserPost(string, string) (*schema.SimplePostData, error)
+	DeletePhoto(string, string) error
 
 	Ping() error
 	Clean() error

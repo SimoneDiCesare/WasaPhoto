@@ -37,3 +37,8 @@ type SimplePostData struct {
 	CreatedAt string         `json:"uploadTime"`
 	Author    SimpleUserData `json:"author"`
 }
+
+type UserProfileData struct {
+	User  SimpleUserData   `json:"user"`
+	Posts []SimplePostData `json:"items"`
+}

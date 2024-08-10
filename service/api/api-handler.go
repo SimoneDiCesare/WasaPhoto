@@ -16,9 +16,6 @@ import (
 
 /**
  * TODO: Missing Endpoints:
- * /users/:uid GET (getUserProfile)
- * /users/:uid/posts GET (getUserPosts)
- * /users/:uid/posts/:pid GET (getUserPost)
  * /posts/:pid DELETE (deletPhoto)
  * /posts/:pid/likes/:uid PUT (likePhoto)
  * /posts/:pid/likes/:uid DELETE (unlikePhoto)
@@ -37,6 +34,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/login", rt.login)
 	rt.router.GET("/users", rt.searchUsers)
 	rt.router.PUT("/users/:uid", rt.changeUserName)
+	rt.router.GET("/users/:uid", rt.getUserProfile)
 	rt.router.GET("/users/:uid/feeds", rt.getMyStream)
 	// Follow operations
 	rt.router.GET("/users/:uid/follows", rt.getFollows)
@@ -49,6 +47,9 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/users/:uid/bans/:bid", rt.unbanUser)
 	// Post operations
 	rt.router.PUT("/posts", rt.uploadPhoto)
+	rt.router.GET("/users/:uid/posts", rt.getUserPosts)
+	rt.router.DELETE("/posts/:pid", rt.deletePhoto)
+	rt.router.GET("/users/:uid/posts/:pid", rt.getUserPost)
 
 	// ==== TODO: Remove or Check importance ====
 	rt.router.GET("/", rt.getHelloWorld)

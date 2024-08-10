@@ -59,14 +59,15 @@ const (
 		"FOREIGN KEY (banned) REFERENCES posts(banned)" +
 		");"
 	// users Table Queries
-	GetUsers          = "SELECT users.id, users.username, users.token FROM users WHERE 1;"
-	CreateUser        = "INSERT INTO users (id, username, token) VALUES ($1, $2, $3);"
-	GetUserById       = "SELECT users.id, users.username, users.token FROM users WHERE users.id = $1;"
-	GetUserByName     = "SELECT users.id, users.username, users.token FROM users WHERE users.username = $1;"
-	GetUidByToken     = "SELECT users.id FROM users WHERE users.token = $1;"
-	UpdateUserToken   = "UPDATE users SET token = $1 WHERE users.id = $2;"
-	UpdateUserName    = "UPDATE users SET username = $1 WHERE users.id = $2;"
-	SearchUsersByName = "SELECT users.id, users.username FROM users WHERE users.id NOT IN (SELECT bans.banner FROM bans WHERE bans.banned = $1) AND users.username LIKE $2 || '%' LIMIT 20;"
+	GetUsers            = "SELECT users.id, users.username, users.token FROM users WHERE 1;"
+	CreateUser          = "INSERT INTO users (id, username, token) VALUES ($1, $2, $3);"
+	GetSimpleUserFromId = "SELECT users.id, users.username FROM users WHERE users.id = $1;"
+	GetUserById         = "SELECT users.id, users.username, users.token FROM users WHERE users.id = $1;"
+	GetUserByName       = "SELECT users.id, users.username, users.token FROM users WHERE users.username = $1;"
+	GetUidByToken       = "SELECT users.id FROM users WHERE users.token = $1;"
+	UpdateUserToken     = "UPDATE users SET token = $1 WHERE users.id = $2;"
+	UpdateUserName      = "UPDATE users SET username = $1 WHERE users.id = $2;"
+	SearchUsersByName   = "SELECT users.id, users.username FROM users WHERE users.id NOT IN (SELECT bans.banner FROM bans WHERE bans.banned = $1) AND users.username LIKE $2 || '%' LIMIT 20;"
 	/*
 		 We need a list of SimplePost
 			Implemented as GetSimplePost with a IN clause for users.id on follows.follower for followed.$1
@@ -86,4 +87,6 @@ const (
 	CreatePost      = "INSERT INTO posts (id, uid) VALUES ($1, $2);"
 	GetPostIdFromId = "SELECT posts.id FROM posts WHERE posts.id = $1;"
 	GetSimplePost   = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.id = $1;"
+	GetUserPosts    = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.uid = $1;"
+	DeletePhoto     = "DELETE FROM posts WHERE posts.id = $1 AND posts.uid = $2;"
 )

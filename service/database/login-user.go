@@ -64,7 +64,7 @@ func (db *appdbimpl) LoginUser(username string) (*schema.UserLogin, error) {
 	affected, _ := res.RowsAffected()
 	if queryError != nil || affected == 0 {
 		// Use old token
-		db.logger.Debugf("Can't update older token: %d, %w", affected, queryError)
+		db.logger.Debugf("Can't update older token: %d, %e", affected, queryError)
 		return &user, nil
 	}
 	user.Token = tmpToken
