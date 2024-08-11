@@ -16,9 +16,6 @@ import (
 
 /**
  * TODO: Missing Endpoints:
- * /posts/:pid DELETE (deletPhoto)
- * /posts/:pid/likes/:uid PUT (likePhoto)
- * /posts/:pid/likes/:uid DELETE (unlikePhoto)
  * /posts/:pid/comments GET (getPostComments)
  * /posts/:pid/comments POST (commentPhoto)
  * /posts/:pid/comments/:cid DELET (uncommentPhoto)
@@ -50,6 +47,8 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:uid/posts", rt.getUserPosts)
 	rt.router.DELETE("/posts/:pid", rt.deletePhoto)
 	rt.router.GET("/users/:uid/posts/:pid", rt.getUserPost)
+	rt.router.PUT("/posts/:pid/likes/:uid", rt.likePost)
+	rt.router.DELETE("/posts/:pid/likes/:uid", rt.unlikePost)
 
 	// ==== TODO: Remove or Check importance ====
 	rt.router.GET("/", rt.getHelloWorld)

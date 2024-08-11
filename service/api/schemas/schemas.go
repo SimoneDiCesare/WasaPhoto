@@ -42,3 +42,8 @@ type UserProfileData struct {
 	User  SimpleUserData   `json:"user"`
 	Posts []SimplePostData `json:"items"`
 }
+
+type LikeData struct {
+	Uid string `json:"uid"`
+	Pid string `json:"pid"`
+}

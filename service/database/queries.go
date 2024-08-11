@@ -89,4 +89,7 @@ const (
 	GetSimplePost   = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.id = $1;"
 	GetUserPosts    = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.uid = $1;"
 	DeletePhoto     = "DELETE FROM posts WHERE posts.id = $1 AND posts.uid = $2;"
+	LikePost        = "INSERT INTO likes (uid, pid) VALUES ($1, $2);"
+	UnlikePost      = "DELETE FROM likes WHERE likes.uid = $1 AND likes.pid = $1;"
+	CheckLike       = "SELECT likes.pid FROM likes WHERE likes.uid = $1 AND likes.pid = $1;"
 )

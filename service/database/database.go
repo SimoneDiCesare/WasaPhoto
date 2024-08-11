@@ -59,6 +59,8 @@ type AppDatabase interface {
 	GetUserPosts(string) ([]schema.SimplePostData, error)
 	GetUserPost(string, string) (*schema.SimplePostData, error)
 	DeletePhoto(string, string) error
+	LikePost(string, string) error
+	UnlikePost(string, string) error
 
 	Ping() error
 	Clean() error
