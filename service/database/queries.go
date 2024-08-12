@@ -28,10 +28,11 @@ const (
 		"FOREIGN KEY (uid) REFERENCES users(id)" +
 		");"
 	CreateCommentsTable = "CREATE TABLE IF NOT EXISTS comments (" +
+		"id TEXT CHECK(LENGTH(id) >= 1 AND LENGTH(id) <= 16)," +
 		"uid TEXT CHECK(LENGTH(uid) >= 1 AND LENGTH(uid) <= 16)," +
 		"pid TEXT CHECK(LENGTH(pid) >= 1 AND LENGTH(pid) <= 16)," +
 		"content TEXT CHECK(LENGTH(content) >= 1 AND LENGTH(content) <= 256)," +
-		"PRIMARY KEY (uid, pid)," +
+		"PRIMARY KEY (id)," +
 		"FOREIGN KEY (uid) REFERENCES users(id)" +
 		"FOREIGN KEY (pid) REFERENCES posts(id)" +
 		");"
@@ -92,4 +93,6 @@ const (
 	LikePost        = "INSERT INTO likes (uid, pid) VALUES ($1, $2);"
 	UnlikePost      = "DELETE FROM likes WHERE likes.uid = $1 AND likes.pid = $1;"
 	CheckLike       = "SELECT likes.pid FROM likes WHERE likes.uid = $1 AND likes.pid = $1;"
+	// comment table query
+	GetPostComments = "SELECT comments.id, comments.pid, users.id, users.username, comments.content FROM comments INNER JOIN users ON comments.uid = users.id WHERE comments.pid = $1;"
 )

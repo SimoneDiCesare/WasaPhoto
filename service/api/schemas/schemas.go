@@ -47,3 +47,10 @@ type LikeData struct {
 	Uid string `json:"uid"`
 	Pid string `json:"pid"`
 }
+
+type PostComment struct {
+	Cid    string         `json:"cid"`
+	Author SimpleUserData `json:"author"`
+	Pid    string         `json:"pid"`
+	Text   string         `json:"text"`
+}

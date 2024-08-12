@@ -49,6 +49,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/users/:uid/posts/:pid", rt.getUserPost)
 	rt.router.PUT("/posts/:pid/likes/:uid", rt.likePost)
 	rt.router.DELETE("/posts/:pid/likes/:uid", rt.unlikePost)
+	rt.router.GET("/posts/:pid/comments", rt.getPostComments)
 
 	// ==== TODO: Remove or Check importance ====
 	rt.router.GET("/", rt.getHelloWorld)

@@ -21,6 +21,16 @@ func (rt *_router) likePost(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	pid := ps.ByName("pid")
+	simplePost, simpleError := rt.db.GetSimplePost(pid)
+	if simpleError != nil {
+		rt.baseLogger.WithError(simpleError).Debug("Can't check bans for liking")
+	} else {
+		banError := rt.checkBanned(simplePost.Author.Uid, uid)
+		if banError != nil {
+			rt.HandleBanError(banError, w)
+			return
+		}
+	}
 	err := rt.db.LikePost(uid, pid)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Can't like post")
@@ -59,6 +69,16 @@ func (rt *_router) unlikePost(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 	pid := ps.ByName("pid")
+	simplePost, simpleError := rt.db.GetSimplePost(pid)
+	if simpleError != nil {
+		rt.baseLogger.WithError(simpleError).Debug("Can't check bans for unliking")
+	} else {
+		banError := rt.checkBanned(simplePost.Author.Uid, uid)
+		if banError != nil {
+			rt.HandleBanError(banError, w)
+			return
+		}
+	}
 	err := rt.db.UnlikePost(uid, pid)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Can't unlike post")

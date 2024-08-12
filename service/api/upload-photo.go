@@ -60,7 +60,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "Can't save image on storage", http.StatusInternalServerError)
 		return
 	}
-	simplePost, err := rt.db.GetSimplePost(pid, uid)
+	simplePost, err := rt.db.GetSimplePost(pid)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Can't retrieve post data")
 		http.Error(w, "Can't retrieve post data", http.StatusInternalServerError)

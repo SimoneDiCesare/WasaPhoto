@@ -53,7 +53,7 @@ type AppDatabase interface {
 	BanUser(string, string) error
 	UnbanUser(string, string) error
 	CreatePost(string) (string, error)
-	GetSimplePost(string, string) (*schema.SimplePostData, error)
+	GetSimplePost(string) (*schema.SimplePostData, error)
 	GetMyStream(string) ([]schema.SimplePostData, error)
 	GetUserProfile(string) (*schema.UserProfileData, error)
 	GetUserPosts(string) ([]schema.SimplePostData, error)
@@ -61,6 +61,7 @@ type AppDatabase interface {
 	DeletePhoto(string, string) error
 	LikePost(string, string) error
 	UnlikePost(string, string) error
+	GetPostComments(string) ([]schema.PostComment, error)
 
 	Ping() error
 	Clean() error
