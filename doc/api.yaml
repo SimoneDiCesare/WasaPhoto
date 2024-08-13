@@ -444,10 +444,11 @@ paths:
       description: |
         Create a new comment and leave it under this post.
       requestBody:
+        description: The comment text.
         required: true
         content:
-          application/json:
-            schema: {$ref: "#/components/schemas/NewComment"}
+          text/plain:
+            schema: {$ref: "#/components/schemas/CommentText"} 
       responses:
         "201":
           description: Post commented.
@@ -613,6 +614,13 @@ components:
       pattern: ^[a-z_0-9]{3,16}
       minLength: 3
       maxLength: 16
+    CommentText:
+      description: Text content of the comment.
+      type: string
+      minimum: 1
+      maximum: 256
+      readOnly: true
+      pattern: ".+"
     SimplePost:
       description: |
         A simple rapresentation of a Post.
@@ -655,24 +663,7 @@ components:
         id: {$ref: "#/components/schemas/ResourceId"}
         author: {$ref: "#/components/schemas/UserSimpleData"}
         post: {$ref: "#/components/schemas/ResourceId"}
-        text:
-          description: Text content of the comment.
-          type: string
-          minimum: 1
-          maximum: 256
-          readOnly: true
-          pattern: ".+"
-    NewComment:
-      description: A new comment to leave under a post.
-      type: object
-      properties:
-        text:
-          description: Text content of the comment.
-          type: string
-          minimum: 1
-          maximum: 256
-          readOnly: true
-          pattern: ".+"
+        text: {$ref; "#/components/schemas/CommentText"}
     Like:
       description: A post's like
       type: object

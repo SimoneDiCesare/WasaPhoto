@@ -3,8 +3,8 @@ package schema
 import "errors"
 
 var ErrExistingUsername = errors.New("usernme already exists")
-var ErrNoAuthentication = errors.New("Not Authenticated")
-var ErrNotAuthorized = errors.New("Not Authorized")
+var ErrNoAuthentication = errors.New("not Authenticated")
+var ErrNotAuthorized = errors.New("not Authorized")
 
 type LoginRequestBody struct {
 	Username string `json:"username"`
@@ -53,4 +53,14 @@ type PostComment struct {
 	Author SimpleUserData `json:"author"`
 	Pid    string         `json:"pid"`
 	Text   string         `json:"text"`
+}
+
+type PostData struct {
+	Pid           string         `json:"pid"`
+	ImageUrl      string         `json:"imageUrl"`
+	Author        SimpleUserData `json:"author"`
+	UploadTime    string         `json:"uploadTime"`
+	LikesCount    int            `json:"likesCount"`
+	CommentsCount int            `json:"commentsCOunt"`
+	Comments      []PostComment  `json:"comments"`
 }

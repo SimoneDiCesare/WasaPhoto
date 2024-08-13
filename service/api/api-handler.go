@@ -7,23 +7,6 @@ import (
 	schema "github.com/SimoneDiCesare/WasaPhoto/service/api/schemas"
 )
 
-/** TODO:
- * Add here endpoint -> rt.router.X("{path}", rt.FUNCTION)
- * Create rt.FUNCTION for each endpoint -> create file FUNCTION.go and write function there
- *		func (rt *_router) UNCTION(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
- * for DB Action -> create under database/ directory.
- */
-
-/**
- * TODO: Missing Endpoints:
- * /posts/:pid/comments GET (getPostComments)
- * /posts/:pid/comments POST (commentPhoto)
- * /posts/:pid/comments/:cid DELET (uncommentPhoto)
- * =======================================================
- * TODO: Bans check on:
- * getUserPosts, getUserPost, likePhoto, unlikePhoto, getPostComments, commentPhoto, uncommentPhoto
- */
-
 // Handler returns an instance of httprouter.Router that handle APIs registered here
 func (rt *_router) Handler() http.Handler {
 	// Register routes
@@ -50,8 +33,10 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.PUT("/posts/:pid/likes/:uid", rt.likePost)
 	rt.router.DELETE("/posts/:pid/likes/:uid", rt.unlikePost)
 	rt.router.GET("/posts/:pid/comments", rt.getPostComments)
+	rt.router.POST("/posts/:pid/comments", rt.commentPhoto)
+	rt.router.DELETE("/posts/:pid/comments/:cid", rt.uncommentPhoto)
 
-	// ==== TODO: Remove or Check importance ====
+	// ==== Leaved or testing ====
 	rt.router.GET("/", rt.getHelloWorld)
 	rt.router.GET("/context", rt.wrap(rt.getContextReply))
 	// Special routes

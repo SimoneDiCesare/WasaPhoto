@@ -18,20 +18,32 @@ func (db *appdbimpl) GetUserProfile(uid string) (profile *schema.UserProfileData
 	return profile, nil
 }
 
-// TOOD: Change to complete post return type
-func (db *appdbimpl) GetUserPost(uid string, pid string) (*schema.SimplePostData, error) {
-	simplePost := &schema.SimplePostData{
+func (db *appdbimpl) GetUserPost(uid string, pid string) (*schema.PostData, error) {
+	post := &schema.PostData{
 		Pid: pid,
 	}
-	// Retrieve correct infos
+	// Get generic infos
 	row := db.c.QueryRow(GetSimplePost, pid)
-	err := row.Scan(&simplePost.Pid, &simplePost.Author.Uid,
-		&simplePost.Author.Username, &simplePost.CreatedAt)
-	simplePost.ImageUrl = "users/" + simplePost.Author.Uid + "/posts/" + simplePost.Pid
+	err := row.Scan(&post.Pid, &post.Author.Uid,
+		&post.Author.Username, &post.UploadTime)
 	if err != nil {
 		db.logger.Error(err)
+		return nil, err
 	}
-	return simplePost, nil
+	post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid
+	// Get comments
+	post.Comments, err = db.GetPostComments(pid)
+	if err != nil {
+		db.logger.Error(err)
+		return nil, err
+	}
+	post.CommentsCount = len(post.Comments)
+	err = db.c.QueryRow(GetPostLikesCount, pid).Scan(&post.LikesCount)
+	if err != nil {
+		db.logger.Error(err)
+		return nil, err
+	}
+	return post, nil
 }
 
 func (db *appdbimpl) GetUserPosts(uid string) (posts []schema.SimplePostData, err error) {
