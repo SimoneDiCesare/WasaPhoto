@@ -30,7 +30,7 @@ func (db *appdbimpl) GetUserPost(uid string, pid string) (*schema.PostData, erro
 		db.logger.Error(err)
 		return nil, err
 	}
-	post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid
+	post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid + ".png"
 	// Get comments
 	post.Comments, err = db.GetPostComments(pid)
 	if err != nil {
@@ -65,7 +65,7 @@ func (db *appdbimpl) GetUserPosts(uid string) (posts []schema.SimplePostData, er
 			db.logger.Debug("Scan Error")
 			return nil, err
 		}
-		post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid
+		post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid + ".png"
 		posts = append(posts, post)
 	}
 	rowsError := rows.Err()

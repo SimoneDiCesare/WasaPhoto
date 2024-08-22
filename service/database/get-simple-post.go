@@ -12,7 +12,7 @@ func (db *appdbimpl) GetSimplePost(pid string) (*schema.SimplePostData, error) {
 	row := db.c.QueryRow(GetSimplePost, pid)
 	err := row.Scan(&simplePost.Pid, &simplePost.Author.Uid,
 		&simplePost.Author.Username, &simplePost.CreatedAt)
-	simplePost.ImageUrl = "users/" + simplePost.Author.Uid + "/posts/" + simplePost.Pid
+	simplePost.ImageUrl = "users/" + simplePost.Author.Uid + "/posts/" + simplePost.Pid + ".png"
 	if err != nil {
 		db.logger.Error(err)
 	}

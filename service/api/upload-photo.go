@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -42,7 +43,14 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "Can't create post on db", http.StatusInternalServerError)
 		return
 	}
-	photoFile, err := os.Create("uploads/" + uid + "/" + pid + ".png")
+	dirPath := filepath.Join("uploads", uid)
+	err = os.MkdirAll(dirPath, os.ModePerm)
+	if err != nil {
+		rt.baseLogger.WithError(err).Error("Can't create file on storage")
+		http.Error(w, "Can't create file on storage", http.StatusInternalServerError)
+		return
+	}
+	photoFile, err := os.Create(filepath.Join(dirPath, pid+".png"))
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Can't create file on storage")
 		http.Error(w, "Can't create file on storage", http.StatusInternalServerError)

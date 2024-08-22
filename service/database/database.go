@@ -34,6 +34,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 
 	schema "github.com/SimoneDiCesare/WasaPhoto/service/api/schemas"
 	"github.com/sirupsen/logrus"
@@ -107,7 +108,8 @@ func (db *appdbimpl) Clean() error {
 			return err
 		}
 	}
-	return nil
+	err := os.RemoveAll("uploads")
+	return err
 }
 
 func (db *appdbimpl) Ping() error {

@@ -23,7 +23,7 @@ func (db *appdbimpl) GetMyStream(uid string) (posts []schema.SimplePostData, err
 			db.logger.Debug("Scan Error")
 			return nil, err
 		}
-		post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid
+		post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid + ".png"
 		posts = append(posts, post)
 	}
 	rowsError := rows.Err()

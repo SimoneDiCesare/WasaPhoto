@@ -663,7 +663,7 @@ components:
         id: {$ref: "#/components/schemas/ResourceId"}
         author: {$ref: "#/components/schemas/UserSimpleData"}
         post: {$ref: "#/components/schemas/ResourceId"}
-        text: {$ref; "#/components/schemas/CommentText"}
+        text: {$ref: "#/components/schemas/CommentText"}
     Like:
       description: A post's like
       type: object
