@@ -96,6 +96,7 @@ paths:
               schema: {$ref: "#/components/schemas/UserProfileData"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
     put:
       tags: ["user"]
@@ -335,11 +336,11 @@ paths:
           image/*:
             schema:
 # https://swagger.io/docs/specification/data-models/data-types/#file
-              description: Photo binary file.
+              description: Photo binary file named image
               type: string
               minLength: 1
               maxLength: 20971520 # 20MB
-              format: binaryù
+              format: binary
       responses:
         "201":
           description: |
@@ -365,6 +366,33 @@ paths:
         "204":
           description: |
             The post was deleted. (Or si not existing).
+        "400": {$ref: "#/components/responses/GenericBadRequest"}
+        "401": {$ref: "#/components/responses/BadAuthentication"}
+        "403": {$ref: "#/components/responses/BadAuthorization"}
+        "500": {$ref: "#/components/responses/GenericServerError"}
+  /posts/{pid}/image.png:
+    description: Image file of a single post.
+    parameters:
+      - $ref: "#/components/parameters/pid"
+    get:
+      tags: ["post"]
+      operationId: getPhoto
+      summary: Get the image file of a post.
+      description: |
+        Get the image as a png file of a single post.
+      responses:
+        "200":
+          description: |
+            The file was retrieved.
+          content:
+            image/*:
+              schema:
+# https://swagger.io/docs/specification/data-models/data-types/#file
+                description: Photo binary file named image
+                type: string
+                minLength: 1
+                maxLength: 20971520 # 20MB
+                format: binary
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
@@ -678,7 +706,7 @@ components:
       minLength: 10
       maxLength: 256
       readOnly: true
-      example: users/124fa3/posts/1cf340a
+      example: /posts/12ac4bf/image
     DateTime:
       description: |
         Datetime rapresentation as "YYYY-MM-DD hh:mm:ss".

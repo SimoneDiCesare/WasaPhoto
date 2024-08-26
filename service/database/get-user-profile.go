@@ -8,6 +8,7 @@ func (db *appdbimpl) GetUserProfile(uid string) (profile *schema.UserProfileData
 	profile = &schema.UserProfileData{}
 	posts, err := db.GetUserPosts(uid)
 	if err != nil {
+		db.logger.Debug("Error on user posts")
 		return nil, err
 	}
 	profile.Posts = posts
@@ -30,7 +31,11 @@ func (db *appdbimpl) GetUserPost(uid string, pid string) (*schema.PostData, erro
 		db.logger.Error(err)
 		return nil, err
 	}
+<<<<<<< HEAD
+	post.ImageUrl = "/posts/" + post.Pid + "/image.png"
+=======
 	post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid + ".png"
+>>>>>>> refs/remotes/origin/main
 	// Get comments
 	post.Comments, err = db.GetPostComments(pid)
 	if err != nil {
@@ -65,7 +70,11 @@ func (db *appdbimpl) GetUserPosts(uid string) (posts []schema.SimplePostData, er
 			db.logger.Debug("Scan Error")
 			return nil, err
 		}
+<<<<<<< HEAD
+		post.ImageUrl = "/posts/" + post.Pid + "/image.png"
+=======
 		post.ImageUrl = "users/" + post.Author.Uid + "/posts/" + post.Pid + ".png"
+>>>>>>> refs/remotes/origin/main
 		posts = append(posts, post)
 	}
 	rowsError := rows.Err()

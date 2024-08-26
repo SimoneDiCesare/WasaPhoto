@@ -27,6 +27,10 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/users/:uid/bans/:bid", rt.unbanUser)
 	// Post operations
 	rt.router.POST("/posts", rt.uploadPhoto)
+<<<<<<< HEAD
+	rt.router.GET("/posts/:pid/image.png", rt.getPhoto)
+=======
+>>>>>>> refs/remotes/origin/main
 	rt.router.GET("/users/:uid/posts", rt.getUserPosts)
 	rt.router.DELETE("/posts/:pid", rt.deletePhoto)
 	rt.router.GET("/users/:uid/posts/:pid", rt.getUserPost)
