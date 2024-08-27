@@ -50,7 +50,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 	for _, ban := range bans {
 		if ban.Uid == bid {
-			// Already bannes
+			// Already banned
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusOK)
 			_, writeError := w.Write(data)

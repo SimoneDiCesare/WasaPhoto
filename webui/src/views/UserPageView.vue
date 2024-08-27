@@ -1,40 +1,66 @@
 <template>
   <div class="profile-container">
+    <!-- Nome Utente al Centro -->
     <div class="profile-info">
       <h2>{{ username }}</h2>
-      <div class="stats">
+      <!-- Aggiunta dei parametri sotto il nome utente -->
+      <div class="profile-stats">
+        <span><strong>{{ followers.length }}</strong> Followers</span>
+        <span><strong>{{ follows.length }}</strong> Follows</span>
         <span><strong>{{ posts.length }}</strong> Posts</span>
       </div>
-      <div v-if="isMyPage" class="settings">
-        <button @click="changeUsername">Cambia Username</button>
-        <button @click="publishPost">Pubblica Post</button>
-      </div>
     </div>
-    
+
+    <!-- Linea di divisione sopra i pulsanti -->
+    <hr class="divider">
+
+    <!-- Pulsanti a seconda della condizione -->
+    <div class="action-buttons" v-if="isMyPage">
+      <button @click="changeUsername">Cambia Username</button>
+      <button @click="publishPost">Carica Foto</button>
+    </div>
+    <div class="action-buttons" v-else-if="!isFollowing && !isBanned">
+      <button @click="followUser">Segui Utente</button>
+      <button @click="banUser">Banna Utente</button>
+    </div>
+    <div class="action-buttons" v-else-if="isFollowing && !isBanned">
+      <button @click="unfollowUser">Smetti di Seguire</button>
+      <button @click="banUser">Banna Utente</button>
+    </div>
+    <div class="action-buttons" v-else-if="isBanned">
+      <button @click="unbanUser">Rimuovi Ban</button>
+    </div>
+
+    <!-- Linea di divisione sotto i pulsanti -->
+    <hr class="divider">
+
+    <!-- Griglia dei post -->
     <div class="posts-grid">
       <div 
         v-for="(post, index) in posts" 
         :key="index" 
         class="post-item"
+        @click="viewPost(post)"
       >
         <img :src="`${post.imageUrl}`" alt="image" />
       </div>
     </div>
   </div>
 
-  <!-- Modale -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <textarea v-model="newUsername" placeholder="Inserisci Nuovo Username"></textarea>
-        <div class="modal-buttons">
-          <button @click="handleCancel">Cancella</button>
-          <button @click="handleSubmit">Invia</button>
-        </div>
+  <!-- Modale per cambiare username -->
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal-content">
+      <textarea v-model="newUsername" placeholder="Inserisci Nuovo Username"></textarea>
+      <div class="modal-buttons">
+        <button @click="handleCancel">Cancella</button>
+        <button @click="handleSubmit">Invia</button>
       </div>
     </div>
+  </div>
 
   <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" style="display: none" />
 </template>
+
 
 <script>
 import {readToken, readUser, writeUser} from '../services/session'
@@ -45,6 +71,10 @@ export default {
       username: '',
       posts: [],
       isMyPage: false,
+      isFollowing: false,
+      isBanned: false,
+      followers: [],
+      follows: [],
       showModal: false,
       newUsername: '',
     };
@@ -55,7 +85,6 @@ export default {
   },
 
   methods: {
-
     async changeUsername() {
       this.newUsername = '';
       this.showModal = true;
@@ -67,9 +96,10 @@ export default {
 
     async handleSubmit() {
       await api.put(this.$route.fullPath, this.newUsername).then((response) => {
-        console.log(response.data);
-        if (response.data < 300) {
-          this.username = response.data.username;
+        this.username = response.data.username;
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't change username:", error.response);
         }
       });
       this.showModal = false;
@@ -80,47 +110,136 @@ export default {
     },
 
     async handleFileUpload() {
-        const file = event.target.files[0]; // Ottieni il file selezionato
+        const file = event.target.files[0];
         if (file) {
             const formData = new FormData();
             formData.append("image", file);
             await api.post("/posts", formData).then((response) => {
-                console.log(response);
+              this.posts.unshift(response.data);
+            }).catch((error) => {
+              if (error.response) {
+                console.log("Can't upload Post:", error.response);
+              }
             });
         }
+    },
+
+    async followUser() {
+      const me = readUser();
+      await api.put(this.$route.fullPath + "/followers/" + me.uid).then((response) => {
+        this.isFollowing = true;
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't follow user:", error.response);
+        }
+      });
+    },
+
+    async unfollowUser() {
+      const me = readUser();
+      await api.delete(this.$route.fullPath + "/followers/" + me.uid).then((response) => {
+        this.isFollowing = false;
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't unfollow user:", error.response);
+        }
+      });
+    },
+
+    async banUser() {
+      const me = readUser();
+      const bid = this.$route.fullPath.substring(7);
+      await api.put("/users/" + me.uid + "/bans/" + bid).then((response) => {
+        this.isFollowing = false;
+        this.isBanned = true;
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't ban user:", error.response);
+        }
+      });
+    },
+
+    async unbanUser() {
+      const me = readUser();
+      const bid = this.$route.fullPath.substring(7);
+      await api.delete("/users/" + me.uid + "/bans/" + bid).then((response) => {
+        this.isFollowing = false;
+        this.isBanned = false;
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't unban user:", error.response);
+        }
+      });
     },
 
     async checkToken() {
         if (readToken()) {
             const currentUser = readUser();
+            // Get generic infos
             await api.get(this.$route.fullPath).then((response) => {
-                console.log(response);
-                if (response.status >= 400) {
-                    // writeUser();
-                    // this.$router.push('/users/' + data.uid);
-                    this.$router.push('/login');
-                    return;
-                }
-                if (response.data.posts) {
-                    response.data.posts.forEach((post) => {
-                        this.posts.push(post)
-                    })
-                }
-                if (response.data.user.uid == currentUser.uid) {
-                    this.isMyPage = true;
-                } else {
-                  this.isMyPage = false;
-                }
+                this.posts = response.data.posts || [];
+                this.isMyPage = response.data.user.uid === currentUser.uid;
                 this.username = response.data.user.username;
-                console.log(response.data);
             }).catch((error) => {
-                writeUser();
-                this.$router.push('/login');
+                if (error.response) {
+                  console.log("Error reading infos:", error.response);
+                }
             });
-            return;
+            // Get follows and followers infos
+            await api.get(this.$route.fullPath + "/followers").then((response) => {
+              if (response.data) {
+                this.followers = response.data;
+                if (!this.isMyPage) {
+                  this.followers.forEach((follower) => {
+                    if (follower.uid == currentUser.uid) {
+                      this.isFollowing = true;
+                    }
+                  });
+                }
+              }
+            }).catch((error) => {
+              if (error.response) {
+                console.log("Error reading followers:", error.response);
+              }
+            });
+            await api.get(this.$route.fullPath + "/follows").then((response) => {
+              if (response.data) {
+                this.follows = response.data;
+              }
+            }).catch((error) => {
+              if (error.response) {
+                console.log("Error reading follows:", error.response);
+              }
+            });
+            // Get My Ban
+            if (!this.isMyPage) {
+              await api.get("/users/"+currentUser.uid+"/bans").then((response) => {
+                if (response.data) {
+                  response.data.forEach((ban) => {
+                    if (ban.username == this.username) {
+                      this.isBanned = true;
+                      this.isFollowing = false;
+                    }
+                  })
+                }
+              }).catch((error) => {
+                if (error.response) {
+                  console.log("Error reading my bans:", error.response);
+                }
+              });
+            }
+        } else { // No credentials
+          this.$router.push('/login');
         }
-        this.$router.push('/login');
-    }
+    },
+
+    async loadProfile() {
+
+    },
+
+    viewPost(post) {
+      
+    },
   }
 };
 </script>
@@ -133,25 +252,36 @@ export default {
   padding: 20px;
 }
 
-.profile-info {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
 .profile-info h2 {
   margin: 0;
   font-size: 24px;
   font-weight: bold;
+  text-align: center;
 }
 
-.stats {
+.profile-stats {
   display: flex;
+  justify-content: center;
   gap: 20px;
   margin-top: 10px;
 }
 
-.stats span {
+.profile-stats span {
   font-size: 18px;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 10px 0;
+}
+
+.divider {
+  width: 100%;
+  max-width: 800px;
+  border-top: 2px solid #ddd;
+  margin: 20px 0;
 }
 
 .posts-grid {
@@ -165,7 +295,6 @@ export default {
 .post-item img {
   width: 100%;
   height: auto;
-  display: block;
   border-radius: 5px;
   object-fit: cover;
 }

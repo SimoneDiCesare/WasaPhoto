@@ -17,7 +17,7 @@
         :key="index"
         class="post-item"
       >
-        <div class="post-author">{{ post.author.username }}</div>
+        <div class="post-author" @click="goToUserPage(post.author.uid)">{{ post.author.username }}</div>
         <img :src="post.imageUrl" alt="Post Image" />
       </div>
     </div>
@@ -27,18 +27,17 @@
       <div class="modal-content">
         <!-- Bottone di chiusura in alto a sinistra -->
         <button class="close-left" @click="closeModal">X</button>
-        <span class="close" @click="closeModal">&times;</span>
         <h2>Risultati della ricerca</h2>
         <ul>
-          <li v-for="user in users" :key="user.id" @click="goToUserPage(user.id)">
+          <li v-for="user in users" :key="user.id" @click="goToUserPage(user.uid)">
             {{ user.username }}
           </li>
         </ul>
       </div>
     </div>
+
   </div>
 </template>
-
 
 <script>
 import api from '../services/axios'
@@ -50,24 +49,49 @@ export default {
       searchQuery: '', // Testo per la ricerca
       showUserModal: false,
       posts: [], // Array per i post
+      users: [],  // Array per gli utenti
     };
   },
 
   methods: {
     async searchUsers() {
-      
+      if (!this.searchQuery.trim()) {
+        // Se la query di ricerca è vuota, non fare nulla
+        return;
+      }
+
+      await api.get("/users?username=" + this.searchQuery).then((response) => {
+        if (response.data) {
+          this.users = response.data;
+          this.showUserModal = true;
+        }
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't search users:", error.response);
+        }
+      });
     },
 
     async loadStream() {
       await api.get("/users/" + readUser().uid + "/feeds").then((response) => {
         if (response.data) {
-          console.log(response.data);
-          response.data.forEach((post) => {
-              this.posts.push(post);
-              console.log(post);
-          })
+          this.posts = response.data;
+          console.log(this.posts);
         }
-      })
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't get feeds:", error.response);
+        }
+      });
+    },
+
+    async goToUserPage(uid) {
+      this.$router.push("/users/" + uid);
+    },
+
+    closeModal() {
+      this.showUserModal = false;
+      this.users = []; // Pulisci l'elenco degli utenti quando chiudi la modale
     }
   },
 
@@ -135,4 +159,56 @@ export default {
   height: auto;
   display: block;
 }
-</style>
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.close-left {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 1; /* Assicura che il bottone sia sopra il contenuto */
+}
+
+.modal-content h2 {
+  margin: 0;
+  padding-left: 40px; /* Spazio per il bottone di chiusura */
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-content li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.modal-content li:hover {
+  background-color: #f1f1f1;
+}

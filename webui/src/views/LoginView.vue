@@ -24,21 +24,18 @@ export default {
     };
   },
   methods: {
+
     async login() {
-      console.log('Username:', this.username);
-	  await api.post('/login', {
-		username: this.username
-	  }).then((response) => {
-		console.log(response)
-		if (response.status < 300) {
-			writeUser(response.data)
-			router.push(`/users/${readUser().uid}/feeds`);
-		} else {
-			console.log(response.status)
-		}
-	  }).catch((error) => {
-		console.log(error)
-	  });
+      await api.post('/login', {
+        username: this.username
+      }).then((response) => {
+        writeUser(response.data);
+        router.push('/users/' + readUser().uid + '/feeds');
+      }).catch((error) => {
+        if (error.response) {
+          console.log("Can't login:", error.response);
+        }
+      });
     }
   }
 };
