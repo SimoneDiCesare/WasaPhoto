@@ -40,7 +40,7 @@ type SimplePostData struct {
 
 type UserProfileData struct {
 	User  SimpleUserData   `json:"user"`
-	Posts []SimplePostData `json:"data"`
+	Posts []SimplePostData `json:"posts"`
 }
 
 type LikeData struct {

@@ -12,7 +12,6 @@ func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httproute
 	pid := ps.ByName("pid")
 	dirPath := filepath.Join("uploads", pid)
 	imagePath := filepath.Join(dirPath, "image.png")
-	rt.baseLogger.Infof("Image: %s", imagePath)
 	_, err := os.Stat(imagePath)
 	if os.IsNotExist(err) {
 		rt.baseLogger.WithError(err).Error("Photo does not exists")

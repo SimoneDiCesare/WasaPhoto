@@ -21,55 +21,58 @@
         <img :src="post.imageUrl" alt="Post Image" />
       </div>
     </div>
+
+    <!-- Modale per la lista di utenti -->
+    <div v-if="showUserModal" class="modal">
+      <div class="modal-content">
+        <!-- Bottone di chiusura in alto a sinistra -->
+        <button class="close-left" @click="closeModal">X</button>
+        <span class="close" @click="closeModal">&times;</span>
+        <h2>Risultati della ricerca</h2>
+        <ul>
+          <li v-for="user in users" :key="user.id" @click="goToUserPage(user.id)">
+            {{ user.username }}
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
+
 <script>
-import axios from 'axios';
+import api from '../services/axios'
+import {readToken, readUser, writeUser} from '../services/session'
 
 export default {
   data() {
     return {
       searchQuery: '', // Testo per la ricerca
-      posts: [
-		{
-			imageUrl: 'http://www.cacciaepescatognini.it/fotonotizie/19_ThinkstockPhotos-608516088.jpg',
-			author: {
-				username: 'Tizio'
-			}
-		}
-	  ], // Array per i post
+      showUserModal: false,
+      posts: [], // Array per i post
     };
   },
 
   methods: {
     async searchUsers() {
-      try {
-        // Effettua la ricerca degli utenti
-        console.log('Ricerca utenti:', this.searchQuery);
-        // Implementa la logica di ricerca qui (ad esempio, chiamando un endpoint API)
-        // Poi aggiorna i post basati sui risultati di ricerca
-        await this.fetchPosts();
-      } catch (error) {
-        console.error('Errore nella ricerca utenti:', error);
-      }
+      
     },
 
-    async fetchPosts() {
-      try {
-        // URL del tuo endpoint API per ottenere i post
-        const url = 'https://api.example.com/posts'; 
-        const response = await axios.get(url);
-        this.posts = response.data; // Aggiorna i post con i dati ottenuti
-      } catch (error) {
-        console.error('Errore nel recupero dei post:', error);
-      }
-    },
+    async loadStream() {
+      await api.get("/users/" + readUser().uid + "/feeds").then((response) => {
+        if (response.data) {
+          console.log(response.data);
+          response.data.forEach((post) => {
+              this.posts.push(post);
+              console.log(post);
+          })
+        }
+      })
+    }
   },
 
   mounted() {
-    // Recupera i post all'inizio
-    this.fetchPosts();
+    this.loadStream();
   },
 };
 </script>

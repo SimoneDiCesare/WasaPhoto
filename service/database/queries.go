@@ -69,7 +69,7 @@ const (
 	UpdateUserToken     = "UPDATE users SET token = $1 WHERE users.id = $2;"
 	UpdateUserName      = "UPDATE users SET username = $1 WHERE users.id = $2;"
 	SearchUsersByName   = "SELECT users.id, users.username FROM users WHERE users.id NOT IN (SELECT bans.banner FROM bans WHERE bans.banned = $1) AND users.username LIKE $2 || '%' LIMIT 20;"
-	GetFeeds            = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE users.id IN (SELECT follows.follower FROM follows WHERE follows.followed = $1) ORDER BY posts.createdAt DESC;"
+	GetFeeds            = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE users.id IN (SELECT follows.followed FROM follows WHERE follows.follower = $1) ORDER BY posts.createdAt DESC;"
 	// follow table query
 	GetFollows   = "SELECT users.id, users.username FROM users INNER JOIN follows ON users.id = follows.followed WHERE follows.follower = $1;"
 	GetFollowers = "SELECT users.id, users.username FROM users INNER JOIN follows ON users.id = follows.follower WHERE follows.followed = $1;"

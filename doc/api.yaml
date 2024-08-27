@@ -154,7 +154,7 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
-  /users/{uid}/follower:
+  /users/{uid}/followers:
     description: List of a user followers.
     parameters:
       - $ref: "#/components/parameters/uid"
@@ -170,7 +170,7 @@ paths:
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
         "500": {$ref: "#/components/responses/GenericServerError"}
-  /users/{uid}/follower/{fid}:
+  /users/{uid}/followers/{fid}:
     description: A user followed/to follow by uid.
     parameters:
       - $ref: "#/components/parameters/uid"
@@ -785,7 +785,7 @@ components:
       type: object
       readOnly: true
       properties:
-        data:
+        posts:
           description: The list of simple posts.
           type: array
           minItems: 0

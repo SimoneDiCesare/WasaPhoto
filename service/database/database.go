@@ -73,13 +73,14 @@ type AppDatabase interface {
 type appdbimpl struct {
 	c      *sql.DB
 	logger *logrus.Logger
+	host   string
 }
 
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
 // `db` is required - an error will be returned if `db` is `nil`.
 // Checks the existance of the important tables in the db.
 // If one or more are missing and cannot be created it will return an error.
-func New(db *sql.DB, logger *logrus.Logger) (AppDatabase, error) {
+func New(db *sql.DB, logger *logrus.Logger, apiHost string) (AppDatabase, error) {
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
@@ -98,6 +99,7 @@ func New(db *sql.DB, logger *logrus.Logger) (AppDatabase, error) {
 	return &appdbimpl{
 		c:      db,
 		logger: logger,
+		host:   apiHost,
 	}, nil
 }
 

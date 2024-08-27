@@ -32,7 +32,7 @@ export default {
 		console.log(response)
 		if (response.status < 300) {
 			writeUser(response.data)
-			router.push(`/users/${readUser().uid}`);
+			router.push(`/users/${readUser().uid}/feeds`);
 		} else {
 			console.log(response.status)
 		}

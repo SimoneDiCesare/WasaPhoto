@@ -1,22 +1,74 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-</script>
-<script>
-export default {}
-</script>
-
 <template>
+	<header class="navbar navbar-dark sticky-top bg-dark shadow p-0">
+		<div class="container-fluid d-flex justify-content-between align-items-center">
+			<!-- Pulsante di logout a sinistra -->
+			<button v-if="isLoggedIn" class="btn btn-outline-light me-2" @click="logout">
+				Logout
+			</button>
 
-	<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-		<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#/">WasaPhoto</a>
-		<button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
+			<!-- Titolo centrato -->
+			<a class="navbar-brand mx-auto fs-6 text-center" @click="goHome">WasaPhoto</a>
+
+			<!-- Pulsante Home a destra -->
+			<button v-if="isLoggedIn" class="btn btn-outline-light ms-2" @click="goProfile">
+				Profile
+			</button>
+		</div>
 	</header>
+
 	<main>
 		<RouterView />
 	</main>
 </template>
 
-<style>
+<script>
+import {readToken, writeUser, readUser} from './services/session'
+export default {
+	data() {
+    	return {
+			isLoggedIn: false,
+    	};
+  	},
+
+	mounted() {
+		if (readToken()) {
+			this.isLoggedIn = true;
+		} else {
+			this.isLoggedIn = false;
+		}
+	},
+
+	methods: {
+		logout() {
+			if (this.isLoggedIn) {
+				writeUser();
+				this.$router.push("/login");
+			}
+		},
+		goHome() {
+			if (this.isLoggedIn) {
+				const uid = readUser().uid;
+				this.$router.push("/users/" + uid + "/feeds");
+			} else {
+				writeUser();
+				this.$router.push("/login");
+			}
+		},
+		goProfile() {
+			if (this.isLoggedIn) {
+				const uid = readUser().uid;
+				this.$router.push("/users/" + uid);
+			}
+		}
+	}
+}
+</script>
+
+<style scoped>
+.navbar-brand {
+    flex-grow: 1;
+    text-align: center;
+    margin-left: -2.5rem; /* Adjust the value as needed */
+}
 </style>
+

@@ -43,23 +43,15 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "Can't create post on db", http.StatusInternalServerError)
 		return
 	}
-<<<<<<< HEAD
 	dirPath := filepath.Join("uploads", pid)
-=======
-	dirPath := filepath.Join("uploads", uid)
->>>>>>> refs/remotes/origin/main
 	err = os.MkdirAll(dirPath, os.ModePerm)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Can't create file on storage")
 		http.Error(w, "Can't create file on storage", http.StatusInternalServerError)
 		return
 	}
-<<<<<<< HEAD
 	// Crea il file all'interno della directory
 	photoFile, err := os.Create(filepath.Join(dirPath, "image.png"))
-=======
-	photoFile, err := os.Create(filepath.Join(dirPath, pid+".png"))
->>>>>>> refs/remotes/origin/main
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Can't create file on storage")
 		http.Error(w, "Can't create file on storage", http.StatusInternalServerError)

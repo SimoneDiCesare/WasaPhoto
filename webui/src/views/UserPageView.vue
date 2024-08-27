@@ -3,7 +3,6 @@
     <div class="profile-info">
       <h2>{{ username }}</h2>
       <div class="stats">
-        <button @click="homePage">Homepage</button>
         <span><strong>{{ posts.length }}</strong> Posts</span>
       </div>
       <div v-if="isMyPage" class="settings">
@@ -18,7 +17,7 @@
         :key="index" 
         class="post-item"
       >
-        <img :src="`http://localhost:3000${post.imageUrl}`" alt="image" />
+        <img :src="`${post.imageUrl}`" alt="image" />
       </div>
     </div>
   </div>
@@ -38,7 +37,7 @@
 </template>
 
 <script>
-import {readToken, readUser} from '../services/session'
+import {readToken, readUser, writeUser} from '../services/session'
 import api from '../services/axios'
 export default {
   data() {
@@ -56,10 +55,6 @@ export default {
   },
 
   methods: {
-
-    async homePage() {
-      this.$router.push("/users/" + readUser().uid + "/feeds");
-    },
 
     async changeUsername() {
       this.newUsername = '';
@@ -99,22 +94,28 @@ export default {
         if (readToken()) {
             const currentUser = readUser();
             await api.get(this.$route.fullPath).then((response) => {
+                console.log(response);
                 if (response.status >= 400) {
                     // writeUser();
                     // this.$router.push('/users/' + data.uid);
                     this.$router.push('/login');
                     return;
                 }
-                if (response.data.items) {
-                    response.data.items.forEach((post) => {
+                if (response.data.posts) {
+                    response.data.posts.forEach((post) => {
                         this.posts.push(post)
                     })
                 }
                 if (response.data.user.uid == currentUser.uid) {
                     this.isMyPage = true;
+                } else {
+                  this.isMyPage = false;
                 }
                 this.username = response.data.user.username;
                 console.log(response.data);
+            }).catch((error) => {
+                writeUser();
+                this.$router.push('/login');
             });
             return;
         }
