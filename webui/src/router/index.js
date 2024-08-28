@@ -7,6 +7,7 @@ import ErrorPageView from '../views/ErrorPageView.vue'
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
+		{ path: '/', redirect: '/login' },
 		{path: '/login', component: LoginView},
 		{path: '/users/:id', component: UserPageView},
 		{path: '/users/:id/feeds', component: HomePageView},

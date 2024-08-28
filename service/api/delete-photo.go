@@ -9,7 +9,7 @@ import (
 // getHelloWorld is an example of HTTP endpoint that returns "Hello world!" as a plain text
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Parse multipart body -> 20 MB
-	uid, tokenErr := rt.checkToken(r.Header.Get("token"))
+	uid, tokenErr := rt.checkToken(r.Header.Get("Authorization"))
 	if tokenErr != nil {
 		rt.HandleTokenError(tokenErr, w)
 		return

@@ -14,7 +14,7 @@ func applyCORSHandler(h http.Handler) http.Handler {
 		// TODO: Add header to Allowed
 		handlers.AllowedHeaders([]string{
 			"Access-Control-Allow-Origin",
-			"token",
+			"Authorization",
 			"Content-Type",
 		}),
 		handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS", "DELETE", "PUT"}),

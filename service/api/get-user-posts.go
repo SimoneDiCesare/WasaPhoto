@@ -8,7 +8,7 @@ import (
 )
 
 func (rt *_router) getUserPosts(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	reqUid, tokenError := rt.checkToken(r.Header.Get("token"))
+	reqUid, tokenError := rt.checkToken(r.Header.Get("Authorization"))
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return

@@ -25,7 +25,7 @@ func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 	user.Username = username
 	var tmp1, tmp2, tmp3 string
 	queryError := db.c.QueryRow(GetUserByName, username).Scan(&tmp1, &tmp2, &tmp3)
-	if queryError == nil {
+	if errors.Is(queryError, nil) {
 		// Username already existing
 		return nil, schema.ErrExistingUsername
 	}
@@ -54,7 +54,7 @@ func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 func (db *appdbimpl) LoginUser(username string) (*schema.UserLogin, error) {
 	var user schema.UserLogin
 	queryError := db.c.QueryRow(GetUserByName, username).Scan(&user.Uid, &user.Username, &user.Token)
-	if queryError == sql.ErrNoRows {
+	if errors.Is(queryError, sql.ErrNoRows) {
 		db.logger.Debug("Creating new user: " + username)
 		return db.CreateUser(username)
 	}

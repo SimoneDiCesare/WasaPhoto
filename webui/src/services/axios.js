@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(config => {
-	config.headers['token'] = readToken();
+	config.headers['Authorization'] = readToken();
 	return config;
 });
 

@@ -8,7 +8,7 @@ import (
 )
 
 func (rt *_router) searchUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	uid, tokenError := rt.checkToken(r.Header.Get("token"))
+	uid, tokenError := rt.checkToken(r.Header.Get("Authorization"))
 	if tokenError != nil {
 		rt.baseLogger.WithError(tokenError).Error("Unauthorized")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)

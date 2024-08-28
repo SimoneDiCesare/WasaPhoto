@@ -12,7 +12,7 @@ import (
 
 func (rt *_router) changeUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid := ps.ByName("uid")
-	tokenError := rt.checkTokenForUid(r.Header.Get("token"), uid)
+	tokenError := rt.checkTokenForUid(r.Header.Get("Authorization"), uid)
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return

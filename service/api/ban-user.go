@@ -9,7 +9,7 @@ import (
 )
 
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	ownerId, tokenError := rt.checkToken(r.Header.Get("token"))
+	ownerId, tokenError := rt.checkToken(r.Header.Get("Authorization"))
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return
@@ -80,7 +80,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 }
 
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	ownerId, tokenError := rt.checkToken(r.Header.Get("token"))
+	ownerId, tokenError := rt.checkToken(r.Header.Get("Authorization"))
 	if tokenError != nil {
 		rt.HandleTokenError(tokenError, w)
 		return
