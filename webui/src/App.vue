@@ -22,46 +22,57 @@
 </template>
 
 <script>
-import {readToken, writeUser, readUser} from './services/session'
+import { readToken, writeUser, readUser } from './services/session';
+import router from './router/index.js';
+
 export default {
 	data() {
-    	return {
-			isLoggedIn: false,
-    	};
-  	},
+		return {
+			isUserLoggedIn: false,
+		};
+	},
 
-	mounted() {
-		if (readToken()) {
-			this.isLoggedIn = true;
-		} else {
-			this.isLoggedIn = false;
-		}
+	computed: {
+		isLoggedIn() {
+			return this.isUserLoggedIn;
+		},
+	},
+
+	created() {
+		this.isUserLoggedIn = !!readToken();
 	},
 
 	methods: {
 		logout() {
 			if (this.isLoggedIn) {
 				writeUser();
-				this.$router.push("/login");
+				this.isUserLoggedIn = false;
+				router.push('/login');
 			}
 		},
 		goHome() {
 			if (this.isLoggedIn) {
 				const uid = readUser().uid;
-				this.$router.push("/users/" + uid + "/feeds");
+				router.push('/users/' + uid + '/feeds');
 			} else {
 				writeUser();
-				this.$router.push("/login");
+				router.push('/login');
 			}
 		},
 		goProfile() {
 			if (this.isLoggedIn) {
 				const uid = readUser().uid;
-				this.$router.push("/users/" + uid);
+				router.push('/users/' + uid);
 			}
-		}
-	}
-}
+		},
+	},
+
+	watch: {
+		'$route'() {
+			this.isUserLoggedIn = !!readToken();
+		},
+	},
+};
 </script>
 
 <style scoped>
@@ -71,4 +82,3 @@ export default {
     margin-left: -2.5rem; /* Adjust the value as needed */
 }
 </style>
-

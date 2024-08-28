@@ -49,6 +49,7 @@
 <script>
 import api from '../services/axios'
 import {readToken, readUser, writeUser} from '../services/session'
+import router from "../router/index.js"
 
 export default {
   data() {
@@ -103,7 +104,7 @@ export default {
     },
 
     async goToUserPage(uid) {
-      this.$router.push("/users/" + uid);
+      router.push("/users/" + uid);
     },
 
     closeModal() {

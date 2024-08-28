@@ -1,6 +1,7 @@
 <script>
 import api from '../services/axios'
 import {readToken, readUser, writeUser} from '../services/session'
+import router from "../router/index.js"
 export default {
   props: {
     post: Object,  // Il post che viene passato alla view
@@ -62,6 +63,9 @@ export default {
       await api.post("/posts/" + this.post.pid + "/comments", this.newComment).then((response) => {
         console.log(response);
         if (response.data) {
+          if (!!this.post.comments) {
+            this.post.comments = [];
+          }
           this.post.comments.push(response.data);
           this.newComment = '';
         }
@@ -86,7 +90,7 @@ export default {
       });
     },
     async goToUserPage(uid) {
-      this.$router.push("/users/" + uid);
+      router.push("/users/" + uid);
     },
     isMyComment(comment) {
       console.log(comment.author.uid, "==", readUser().uid, readUser().uid == comment.author.uid);
@@ -104,6 +108,14 @@ export default {
       };
       return new Intl.DateTimeFormat('en-GB', options).format(date);
     },
+    // TODO: Implement delete logic
+    async deletePost() {
+      await api.delete("/posts/" + this.post.pid).then((response) => {
+        console.log(response);
+        this.closeView();
+        this.$router.go();
+      })
+    },
   },
 };
 </script>
@@ -117,6 +129,9 @@ export default {
         <div class="post-author" @click="goToUserPage(post.author.uid)">
           {{ post.author.username }} <br> {{ getFormattedDate(this.post.uploadTime) }}
         </div>
+        <button v-if="isMyPost" class="delete-post" @click="deletePost()">
+          Delete
+        </button>
       </div>
 
       <!-- Contenitore del post e dei commenti -->

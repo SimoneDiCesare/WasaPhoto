@@ -35,7 +35,7 @@
     <hr class="divider">
 
     <!-- Griglia dei post -->
-    <div class="posts-grid">
+    <div v-if="!isBanned" class="posts-grid">
       <div 
         v-for="(post, index) in posts" 
         :key="index" 
@@ -71,6 +71,7 @@
 <script>
 import {readToken, readUser, writeUser} from '../services/session'
 import api from '../services/axios'
+import router from "../router/index.js"
 export default {
   data() {
     return {
@@ -87,8 +88,11 @@ export default {
     };
   },
 
+  async beforeMount() {
+    await this.checkToken();
+  },
+
   mounted() {
-    this.checkToken();
   },
 
   methods: {
@@ -135,6 +139,7 @@ export default {
       const me = readUser();
       await api.put(this.$route.fullPath + "/followers/" + me.uid).then((response) => {
         this.isFollowing = true;
+        this.followers.push(me);
       }).catch((error) => {
         if (error.response) {
           console.log("Can't follow user:", error.response);
@@ -146,6 +151,7 @@ export default {
       const me = readUser();
       await api.delete(this.$route.fullPath + "/followers/" + me.uid).then((response) => {
         this.isFollowing = false;
+        this.followers.pop(me);
       }).catch((error) => {
         if (error.response) {
           console.log("Can't unfollow user:", error.response);
@@ -236,7 +242,7 @@ export default {
               });
             }
         } else { // No credentials
-          this.$router.push('/login');
+          router.push('/login');
         }
     },
 
