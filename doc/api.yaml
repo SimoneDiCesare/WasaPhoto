@@ -1,27 +1,17 @@
 openapi: 3.0.3
 info:
   title: WASAPhoto API Specification
-  decription: |
-    Keep in touch with your friends by sharing photos of special moments,
-    thanks to WASAPhoto! You can upload your photos directly from your PC,
-    and they will be visible to everyone following you.
   version: "1.0.0"
 
 servers:
   - url: "http://localhost:3000"
-    decription: "Local hosting project"
 
 tags:
   - name: auth
-    decription: Auth operations.
   - name: user
-    decription: User operations.
   - name: follow
-    decription: Follows/Follower operations.
   - name: ban
-    description: Banning operations.
   - name: post
-    decription: Post operations.
 
 paths:
 # Logic operations
@@ -101,6 +91,7 @@ paths:
     put:
       tags: ["user"]
       operationId: setMyUserName
+      summary: Set username
       description: |
         Changes the user's username.
       requestBody:
@@ -650,9 +641,9 @@ components:
     CommentText:
       description: Text content of the comment.
       type: string
-      minimum: 1
-      maximum: 256
       readOnly: true
+      minLength: 3
+      maxLength: 200
       pattern: ".+"
     SimplePost:
       description: |
@@ -720,12 +711,12 @@ components:
       example: /posts/12ac4bf/image
     DateTime:
       description: |
-        Datetime rapresentation as "YYYY-MM-DD hh:mm:ss".
+        Datetime rapresentation as "YYYY-MM-DDThh:mm:ss".
         Time format is 24h.
       type: string
       format: date-time
-      minLength: 20
-      maxLength: 20
+      minLength: 19
+      maxLength: 19
       readOnly: true
       example: "2024-03-13T12:30:12"
     FollowData:
