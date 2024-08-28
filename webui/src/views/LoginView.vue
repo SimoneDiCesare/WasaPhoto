@@ -23,6 +23,9 @@ export default {
       username: ''
     };
   },
+  mounted() {
+    writeUser();
+  },
   methods: {
 
     async login() {

@@ -80,18 +80,20 @@ const (
 	BanUser   = "INSERT INTO bans (banner, banned) VALUES ($1, $2);"
 	UnbanUser = "DELETE FROM bans WHERE bans.banner = $1 AND bans.banned = $2;"
 	// post table query
-	CreatePost        = "INSERT INTO posts (id, uid) VALUES ($1, $2);"
-	GetPostIdFromId   = "SELECT posts.id FROM posts WHERE posts.id = $1;"
-	GetSimplePost     = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.id = $1;"
-	GetUserPosts      = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.uid = $1 ORDER BY posts.createdAt DESC;"
-	DeletePhoto       = "DELETE FROM posts WHERE posts.id = $1 AND posts.uid = $2;"
+	CreatePost      = "INSERT INTO posts (id, uid) VALUES ($1, $2);"
+	GetPostIdFromId = "SELECT posts.id FROM posts WHERE posts.id = $1;"
+	GetSimplePost   = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.id = $1;"
+	GetUserPosts    = "SELECT posts.id, posts.uid, users.username, posts.createdAt FROM posts INNER JOIN users ON posts.uid = users.id WHERE posts.uid = $1 ORDER BY posts.createdAt DESC;"
+	DeletePhoto     = "DELETE FROM posts WHERE posts.id = $1 AND posts.uid = $2;"
+	// comment table query
+	GetPostComments    = "SELECT comments.id, comments.pid, users.id, users.username, comments.content FROM comments INNER JOIN users ON comments.uid = users.id WHERE comments.pid = $1;"
+	GetCommentIdFromId = "SELECT comments.id FROM comments WHERE comments.id = $1;"
+	CommentPhoto       = "INSERT INTO comments (id, pid, uid, content) VALUES ($1, $2, $3, $4);"
+	UncommentPhoto     = "DELETE FROM comments WHERE comments.id = $1;"
+	// likes table query
 	LikePost          = "INSERT INTO likes (uid, pid) VALUES ($1, $2);"
 	UnlikePost        = "DELETE FROM likes WHERE likes.uid = $1 AND likes.pid = $1;"
 	CheckLike         = "SELECT likes.pid FROM likes WHERE likes.uid = $1 AND likes.pid = $1;"
 	GetPostLikesCount = "SELECT COUNT(*) AS likes_count FROM likes WHERE likes.pid = $1;"
-	// comment table query
-	GetPostComments    = "SELECT comments.id, comments.pid, users.id, users.username, comments.content FROM comments INNER JOIN users ON comments.uid = users.id WHERE comments.pid = $1;"
-	GetCommentIdFromId = "SELECT comments.id FROM comments WHERE comments.id = $1;"
-	CommentPhoto       = "INSET INTO comments (id, pid, uid, content) VALUES ($1, $2, $3, $4);"
-	UncommentPhoto     = "DELETE FROM comments WHERE comments.id = $1;"
+	GetPostLikes      = "SELECT users.id, users.username FROM likes INNER JOIN users ON users.id = likes.uid WHERE likes.pid = $1;"
 )

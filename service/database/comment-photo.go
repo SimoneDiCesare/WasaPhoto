@@ -30,7 +30,7 @@ func (db *appdbimpl) CommentPhoto(pid string, uid string, content string) (*sche
 		return nil, err
 	}
 	var user schema.SimpleUserData
-	err = db.c.QueryRow(GetSimpleUserFromId, uid).Scan(user.Uid, user.Username)
+	err = db.c.QueryRow(GetSimpleUserFromId, uid).Scan(&user.Uid, &user.Username)
 	if err != nil {
 		db.logger.Debugf("Can't retrieve simpleuser: %e", err)
 		return nil, err

@@ -63,6 +63,7 @@ type AppDatabase interface {
 	LikePost(string, string) error
 	UnlikePost(string, string) error
 	GetPostComments(string) ([]schema.PostComment, error)
+	GetPostLikes(string) ([]schema.SimpleUserData, error)
 	CommentPhoto(string, string, string) (*schema.PostComment, error)
 	UncommentPhoto(string) error
 

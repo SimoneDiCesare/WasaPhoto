@@ -19,6 +19,35 @@ func (db *appdbimpl) GetUserProfile(uid string) (profile *schema.UserProfileData
 	return profile, nil
 }
 
+func (db *appdbimpl) GetPostLikes(pid string) (likes []schema.SimpleUserData, err error) {
+	rows, searchError := db.c.Query(GetPostLikes, pid)
+	if searchError != nil {
+		db.logger.Debug("Search Error")
+		return nil, searchError
+	}
+	defer func() {
+		closeError := rows.Close()
+		if closeError != nil && err != nil {
+			db.logger.Debug("Close Error")
+			err = closeError
+		}
+	}()
+	for rows.Next() {
+		var like schema.SimpleUserData
+		if err := rows.Scan(&like.Uid, &like.Username); err != nil {
+			db.logger.Debug("Scan Error")
+			return nil, err
+		}
+		likes = append(likes, like)
+	}
+	rowsError := rows.Err()
+	if rowsError != nil {
+		db.logger.Debug("Rows Error")
+		return nil, rowsError
+	}
+	return likes, nil
+}
+
 func (db *appdbimpl) GetUserPost(uid string, pid string) (*schema.PostData, error) {
 	post := &schema.PostData{
 		Pid: pid,
@@ -39,11 +68,13 @@ func (db *appdbimpl) GetUserPost(uid string, pid string) (*schema.PostData, erro
 		return nil, err
 	}
 	post.CommentsCount = len(post.Comments)
-	err = db.c.QueryRow(GetPostLikesCount, pid).Scan(&post.LikesCount)
+	// Get likes
+	post.Likes, err = db.GetPostLikes(pid)
 	if err != nil {
 		db.logger.Error(err)
 		return nil, err
 	}
+	post.LikesCount = len(post.Likes)
 	return post, nil
 }
 

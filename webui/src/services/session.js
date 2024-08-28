@@ -10,7 +10,8 @@ function write(key, item) {
     if (item) {
         localStorage.setItem(key, item)
     } else {
-        localStorage.removeItem(key)
+        console.log("Clearing", key);
+        localStorage.removeItem(key);
     }
 }
 

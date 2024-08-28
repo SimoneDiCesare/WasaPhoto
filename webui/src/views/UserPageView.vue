@@ -40,11 +40,17 @@
         v-for="(post, index) in posts" 
         :key="index" 
         class="post-item"
-        @click="viewPost(post)"
+        @click="selectPost(post)"
       >
         <img :src="`${post.imageUrl}`" alt="image" />
       </div>
     </div>
+    <!-- View Dettagliata Post selezionato -->
+    <PostDetail
+        v-if="selectedPost"
+        :post="selectedPost"
+        @close="selectedPost = null"
+      />
   </div>
 
   <!-- Modale per cambiare username -->
@@ -77,6 +83,7 @@ export default {
       follows: [],
       showModal: false,
       newUsername: '',
+      selectedPost: null,
     };
   },
 
@@ -237,8 +244,12 @@ export default {
 
     },
 
-    viewPost(post) {
-      
+    async selectPost(post) {
+      await api.get("/users/" + post.author.uid + "/posts/" + post.pid).then((response) => {
+        if (response.data) {
+          this.selectedPost = response.data;
+        }
+      });
     },
   }
 };

@@ -16,11 +16,18 @@
         v-for="(post, index) in posts"
         :key="index"
         class="post-item"
+        @click="selectPost(post)"
       >
         <div class="post-author" @click="goToUserPage(post.author.uid)">{{ post.author.username }}</div>
         <img :src="post.imageUrl" alt="Post Image" />
       </div>
     </div>
+    <!-- View Dettagliata Post selezionato -->
+    <PostDetail
+        v-if="selectedPost"
+        :post="selectedPost"
+        @close="selectedPost = null"
+      />
 
     <!-- Modale per la lista di utenti -->
     <div v-if="showUserModal" class="modal">
@@ -50,10 +57,20 @@ export default {
       showUserModal: false,
       posts: [], // Array per i post
       users: [],  // Array per gli utenti
+      selectedPost: null,
     };
   },
 
   methods: {
+
+    async selectPost(post) {
+      await api.get("/users/" + post.author.uid + "/posts/" + post.pid).then((response) => {
+        if (response.data) {
+          this.selectedPost = response.data;
+        }
+      });
+    },
+
     async searchUsers() {
       if (!this.searchQuery.trim()) {
         // Se la query di ricerca è vuota, non fare nulla
@@ -212,3 +229,4 @@ export default {
 .modal-content li:hover {
   background-color: #f1f1f1;
 }
+</style>

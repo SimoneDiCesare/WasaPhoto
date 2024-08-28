@@ -316,7 +316,7 @@ paths:
 
         This operation is not permitted from user banned by the uid user.
       responses:
-        "200": {$ref: "#/components/responses/PostsListResult"}
+        "200": {$ref: "#/components/responses/PostResult"}
         "400": {$ref: "#/components/responses/GenericBadRequest"}
         "401": {$ref: "#/components/responses/BadAuthentication"}
         "403": {$ref: "#/components/responses/BadAuthorization"}
@@ -608,6 +608,11 @@ components:
       content:
         application/json:
           schema: {$ref: "#/components/schemas/SimplePostDataList"}
+    PostResult:
+      description: A detailed post.
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/Post"}
     PostsListResult:
       description: A list of posts.
       content:
@@ -672,6 +677,12 @@ components:
           minimum: 0
           maximum: 1000
           readOnly: true
+        likes:
+          description: User who like this post.
+          type: array
+          minItems: 0
+          maxItems: 200
+          items: {$ref: "#/components/schemas/UserSimpleData"}
         commentsCount:
           description: Numer of comments
           type: integer

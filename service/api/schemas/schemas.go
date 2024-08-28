@@ -56,11 +56,12 @@ type PostComment struct {
 }
 
 type PostData struct {
-	Pid           string         `json:"pid"`
-	ImageUrl      string         `json:"imageUrl"`
-	Author        SimpleUserData `json:"author"`
-	UploadTime    string         `json:"uploadTime"`
-	LikesCount    int            `json:"likesCount"`
-	CommentsCount int            `json:"commentsCOunt"`
-	Comments      []PostComment  `json:"comments"`
+	Pid           string           `json:"pid"`
+	ImageUrl      string           `json:"imageUrl"`
+	Author        SimpleUserData   `json:"author"`
+	UploadTime    string           `json:"uploadTime"`
+	Likes         []SimpleUserData `json:"likes"`
+	LikesCount    int              `json:"likesCount"`
+	CommentsCount int              `json:"commentsCount"`
+	Comments      []PostComment    `json:"comments"`
 }
