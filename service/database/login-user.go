@@ -3,8 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"math/rand"
 
 	schema "github.com/SimoneDiCesare/WasaPhoto/service/api/schemas"
 )
@@ -33,7 +31,13 @@ func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 	// If on the 10-th tries we can't generate a valid id, an error is returned.
 	triesCount := 0
 	for {
-		user.Uid = fmt.Sprintf("%x", rand.Uint64())
+		tmpUid, err := generateRandomHex()
+		if err != nil {
+			db.logger.Errorf("Error generating hex: %e", err)
+			triesCount = triesCount + 1
+			continue
+		}
+		user.Uid = tmpUid
 		queryError = db.c.QueryRow(GetUserById, user.Uid).Scan()
 		if errors.Is(queryError, sql.ErrNoRows) {
 			break
@@ -43,7 +47,11 @@ func (db *appdbimpl) CreateUser(username string) (*schema.UserLogin, error) {
 			return nil, errors.New("exceeded tries for creating uid")
 		}
 	}
-	user.Token = fmt.Sprintf("%x", rand.Uint64())
+	tmpToken, err := generateRandomHex()
+	if err != nil {
+		return nil, err
+	}
+	user.Token = tmpToken
 	_, queryError = db.c.Exec(CreateUser, user.Uid, user.Username, user.Token)
 	if queryError != nil {
 		return nil, queryError
@@ -59,10 +67,18 @@ func (db *appdbimpl) LoginUser(username string) (*schema.UserLogin, error) {
 		return db.CreateUser(username)
 	}
 	// Update token on login
-	tmpToken := fmt.Sprintf("%x", rand.Uint64())
+	tmpToken, err := generateRandomHex()
+	if err != nil {
+		db.logger.Debugf("Can't update older token: %e", err)
+		return &user, nil
+	}
 	res, queryError := db.c.Exec(UpdateUserToken, tmpToken, user.Uid)
+	if queryError != nil {
+		db.logger.Debugf("Can't update older token: %e", queryError)
+		return &user, nil
+	}
 	affected, _ := res.RowsAffected()
-	if queryError != nil || affected == 0 {
+	if affected == 0 {
 		// Use old token
 		db.logger.Debugf("Can't update older token: %d, %e", affected, queryError)
 		return &user, nil

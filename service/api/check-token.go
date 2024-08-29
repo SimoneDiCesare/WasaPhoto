@@ -8,6 +8,7 @@ func (rt *_router) checkToken(token string) (string, error) {
 	rt.baseLogger.Debugf("Token to verify: %s", token)
 	uid, searchError := rt.db.SearchUidByToken(token)
 	if searchError != nil {
+		rt.baseLogger.Debugf("Token verification: %e", searchError)
 		return "", schema.ErrNoAuthentication
 	}
 	return uid, nil

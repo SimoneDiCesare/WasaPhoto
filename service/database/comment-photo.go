@@ -3,8 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"math/rand"
 
 	schema "github.com/SimoneDiCesare/WasaPhoto/service/api/schemas"
 )
@@ -12,9 +10,15 @@ import (
 func (db *appdbimpl) CommentPhoto(pid string, uid string, content string) (*schema.PostComment, error) {
 	triesCount := 0
 	var cid string
+	var err error
 	var foundId string
 	for {
-		cid = fmt.Sprintf("%x", rand.Uint64())
+		cid, err = generateRandomHex()
+		if err != nil {
+			db.logger.Errorf("Error generating hex: %e", err)
+			triesCount = triesCount + 1
+			continue
+		}
 		queryError := db.c.QueryRow(GetCommentIdFromId, cid).Scan(&foundId)
 		if errors.Is(queryError, sql.ErrNoRows) {
 			break
@@ -24,7 +28,7 @@ func (db *appdbimpl) CommentPhoto(pid string, uid string, content string) (*sche
 			return nil, errors.New("exceeded tries for creating cid")
 		}
 	}
-	_, err := db.c.Exec(CommentPhoto, cid, pid, uid, content)
+	_, err = db.c.Exec(CommentPhoto, cid, pid, uid, content)
 	if err != nil {
 		db.logger.Debugf("Error commenting: %e", err)
 		return nil, err

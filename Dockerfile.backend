@@ -1,0 +1,51 @@
+# =============================== RUN INSTRUCTIONS ===============================
+# For building the image run:
+#   docker build -f Dockerfile.backend -t wasa-backend:latest .
+# For running the container: 
+#   docker run -d --name wasa-backend-container -p 3000:3000 wasa-backend:latest
+# For deleting the container (per build action):
+#   Make sure its stopped first:
+#       docker stop wasa-backend-container
+#   Then remove the container:
+#       docker rm wasa-backend-container
+# ================================================================================
+
+# Go building phase
+ARG GO_VERSION=1.20
+FROM golang:${GO_VERSION} AS builder
+
+# Libraries for enabling CGO (sqlite3)
+# RUN apk add --no-cache gcc musl-dev sqlite-dev
+
+WORKDIR /src/
+
+# Copy backend files only
+COPY go.mod .
+COPY go.sum .
+COPY cmd/ cmd/
+COPY service/ service/
+# Download Dependencies (vendors)
+RUN go mod download
+
+# Build go executable
+RUN go build -o /app/main ./cmd/webapi/
+
+# Final container from light image
+FROM debian:stable
+
+# Add simple user for security
+RUN adduser --home /app/ --disabled-password --shell /bin/false appuser
+USER appuser
+
+WORKDIR /app
+
+# Copy go executable
+COPY --from=builder --chown=appuser:appuser /app/main .
+
+# Backend port
+EXPOSE 3000
+
+# Run backend
+ENV CFG_WEB_API_HOST='0.0.0.0:3000'
+ENV CFG_DEBUG=true
+CMD ["./main"]
