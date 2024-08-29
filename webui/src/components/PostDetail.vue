@@ -6,22 +6,33 @@ export default {
   props: {
     post: Object,  // Il post che viene passato alla view
   },
+  watch: {
+    post: {
+      handler(newPost) {
+        this.localPost = { ...newPost };
+      },
+      deep: true,
+      immediate: true,
+    },
+  },
   data() {
     return {
+      localPost: { ...this.post },
       userLiked: false,  // Stato del like da parte dell'utente
       isMyPost: false,
       newComment: '',
     };
   },
   mounted() {
+    this.localPost = { ...this.post };
     const me = readUser();
-    if (me.uid == this.post.author.uid) {
+    if (me.uid == this.localPost.author.uid) {
       this.isMyPost = true;
     }
-    if (!this.post.likes) {
+    if (!this.localPost.likes) {
       return;
     }
-    this.post.likes.forEach((user) => {
+    this.localPost.likes.forEach((user) => {
       if (user.uid == me.uid) {
         this.userLiked = true;
       }
@@ -31,9 +42,9 @@ export default {
     async toggleLike() {
       const me = readUser();
       if (this.userLiked) {
-        await api.delete("/posts/" + this.post.pid + "/likes/" + me.uid).then((response) => {
+        await api.delete("/posts/" + this.localPost.pid + "/likes/" + me.uid).then((response) => {
           this.userLiked = false;
-          this.post.likesCount -= 1;
+          this.localPost.likesCount -= 1;
           console.log(response);
         }).catch((error) => {
           if (error.response) {
@@ -41,9 +52,9 @@ export default {
           }
         });
       } else {
-        await api.put("/posts/" + this.post.pid + "/likes/" + me.uid).then((response) => {
+        await api.put("/posts/" + this.localPost.pid + "/likes/" + me.uid).then((response) => {
           this.userLiked = true;
-          this.post.likesCount += 1;
+          this.localPost.likesCount += 1;
           console.log(response);
         }).catch((error) => {
           if (error.response) {
@@ -60,13 +71,13 @@ export default {
         return;
       }
       console.log("Commenting:", this.newComment);
-      await api.post("/posts/" + this.post.pid + "/comments", this.newComment).then((response) => {
+      await api.post("/posts/" + this.localPost.pid + "/comments", this.newComment).then((response) => {
         console.log(response);
         if (response.data) {
-          if (!!this.post.comments) {
-            this.post.comments = [];
+          if (!this.localPost.comments) {
+            this.localPost.comments = [];
           }
-          this.post.comments.push(response.data);
+          this.localPost.comments.push(response.data);
           this.newComment = '';
         }
       }).catch((error) => {
@@ -77,10 +88,10 @@ export default {
     },
     async removeComment(comment) {
       console.log(comment.author.uid, "==", readUser().uid, readUser().uid == comment.author.uid);
-      await api.delete("/posts/" + this.post.pid + "/comments/" + comment.cid).then((response) => {
+      await api.delete("/posts/" + this.localPost.pid + "/comments/" + comment.cid).then((response) => {
         console.log(response);
         // Remove from list
-        this.post.comments = this.post.comments.filter((item) => {
+        this.localPost.comments = this.localPost.comments.filter((item) => {
           return item.cid != comment.cid;
         });
       }).catch((error) => {
@@ -110,7 +121,7 @@ export default {
     },
     // TODO: Implement delete logic
     async deletePost() {
-      await api.delete("/posts/" + this.post.pid).then((response) => {
+      await api.delete("/posts/" + this.localPost.pid).then((response) => {
         console.log(response);
         this.closeView();
         this.$router.go();
@@ -126,8 +137,8 @@ export default {
       <!-- Header con pulsante di chiusura e nome utente -->
       <div class="post-header">
         <button class="close-button" @click="closeView">X</button>
-        <div class="post-author" @click="goToUserPage(post.author.uid)">
-          {{ post.author.username }} <br> {{ getFormattedDate(this.post.uploadTime) }}
+        <div class="post-author" @click="goToUserPage(localPost.author.uid)">
+          {{ localPost.author.username }} <br> {{ getFormattedDate(this.localPost.uploadTime) }}
         </div>
         <button v-if="isMyPost" class="delete-post" @click="deletePost()">
           Delete
@@ -138,9 +149,9 @@ export default {
       <div class="post-body">
         <!-- Immagine del post -->
         <div class="post-content">
-          <img :src="post.imageUrl" alt="Post Image" />
+          <img :src="localPost.imageUrl" alt="Post Image" />
           <div class="post-footer">
-            <div class="like-count">{{ post.likesCount }} Likes</div>
+            <div class="like-count">{{ localPost.likesCount }} Likes</div>
             <button v-if="!isMyPost" @click="toggleLike">{{ userLiked ? 'Unlike' : 'Like' }}</button>
           </div>
         </div>
@@ -148,7 +159,7 @@ export default {
         <!-- Lista dei commenti -->
         <div class="comments-section">
           <div class ="comments-list">
-            <div v-for="comment in post.comments" :key="comment.id" class="comment-item">
+            <div v-for="comment in localPost.comments" :key="comment.id" class="comment-item">
               <div class="comment-top">
                 <div class="comment-author">{{ comment.author.username }}</div>
                 <div v-if="isMyComment(comment)" class="comment-button" @click="removeComment(comment)">X</div>

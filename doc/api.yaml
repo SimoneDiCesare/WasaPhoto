@@ -604,11 +604,6 @@ components:
       content:
         application/json:
           schema: {$ref: "#/components/schemas/Post"}
-    PostsListResult:
-      description: A list of posts.
-      content:
-        application/json:
-          schema: {$ref: "#/components/schemas/PostDataList"}
     CommentsListResult:
       description: A list of post's comments.
       content:
@@ -793,18 +788,6 @@ components:
           minItems: 0
           maxItems: 20
           items: {$ref: "#/components/schemas/SimplePost"}
-    PostDataList:
-      description: |
-        A List of posts.
-      type: object
-      readOnly: true
-      properties:
-        data:
-          description: The list of posts.
-          type: array
-          minItems: 0
-          maxItems: 20
-          items: {$ref: "#/components/schemas/Post"}
     CommentDataList:
       description: A list of comments
       type: object
