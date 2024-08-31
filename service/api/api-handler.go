@@ -28,20 +28,20 @@ func (rt *_router) Handler() http.Handler {
 	// Post operations
 	rt.router.POST("/posts", rt.uploadPhoto)
 	rt.router.GET("/posts/:pid/image.png", rt.getPhoto)
-	rt.router.GET("/users/:uid/posts", rt.getUserPosts)
+	// rt.router.GET("/users/:uid/posts", rt.getUserPosts) //!
 	rt.router.DELETE("/posts/:pid", rt.deletePhoto)
 	rt.router.GET("/users/:uid/posts/:pid", rt.getUserPost)
 	rt.router.PUT("/posts/:pid/likes/:uid", rt.likePost)
 	rt.router.DELETE("/posts/:pid/likes/:uid", rt.unlikePost)
-	rt.router.GET("/posts/:pid/comments", rt.getPostComments)
+	// rt.router.GET("/posts/:pid/comments", rt.getPostComments) //!
 	rt.router.POST("/posts/:pid/comments", rt.commentPhoto)
 	rt.router.DELETE("/posts/:pid/comments/:cid", rt.uncommentPhoto)
 
-	// ==== Leaved or testing ====
-	rt.router.GET("/", rt.getHelloWorld)
-	rt.router.GET("/context", rt.wrap(rt.getContextReply))
-	// Special routes
-	rt.router.GET("/liveness", rt.liveness)
+	// // ==== Leaved or testing ====
+	// rt.router.GET("/", rt.getHelloWorld)
+	// rt.router.GET("/context", rt.wrap(rt.getContextReply))
+	// // Special routes
+	// rt.router.GET("/liveness", rt.liveness)
 
 	return rt.router
 }
