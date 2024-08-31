@@ -1,0 +1,21 @@
+# =============================== RUN INSTRUCTIONS ===============================
+# For building the image run:
+#   docker build -f Dockerfile.frontend -t wasa-frontend:latest .
+# For running the container:
+#   docker run -it --rm -p 8081:80 wasa-frontend:latest
+# ================================================================================
+
+# Node building phase 
+ARG NODE_VERSION=22
+FROM node:${NODE_VERSION} AS builder
+
+WORKDIR /webui/
+
+# Copy and build frontend files only
+COPY webui .
+RUN npm run build-prod
+
+# Final container -> server frontend with nginx
+FROM nginx:stable
+
+COPY --from=builder /webui/dist/ /usr/share/nginx/html/
